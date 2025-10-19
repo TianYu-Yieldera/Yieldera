@@ -1,0 +1,33 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: YielderaAirdrop
+    network: sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"  # 部署后替换为实际合约地址
+      abi: YielderaAirdrop
+      startBlock: 0  # 部署后替换为实际区块号
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AirdropCampaign
+        - User
+        - Claim
+        - DailySnapshot
+        - GlobalStats
+        - CampaignStatusUpdate
+      abis:
+        - name: YielderaAirdrop
+          file: ../contracts/artifacts/contracts/YielderaAirdrop.sol/YielderaAirdrop.json
+      eventHandlers:
+        - event: CampaignCreated(indexed uint256,string,uint256,uint256,uint256,indexed address)
+          handler: handleCampaignCreated
+        - event: Claimed(indexed uint256,indexed address,uint256,uint256)
+          handler: handleClaimed
+        - event: CampaignStatusUpdated(indexed uint256,bool)
+          handler: handleCampaignStatusUpdated
+      file: ./src/mapping.ts

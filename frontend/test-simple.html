@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+    <style>
+        body { background: #0F172A; color: white; padding: 40px; font-family: Arial; }
+    </style>
+</head>
+<body>
+    <h1>Simple Test Page</h1>
+    <div id="root">Loading...</div>
+    <script type="module">
+        document.getElementById('root').innerHTML = '<p>✅ JavaScript is working!</p>';
+        
+        // Test fetch to API
+        fetch('http://localhost:8080/health')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('root').innerHTML += '<p>✅ API working: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(e => {
+                document.getElementById('root').innerHTML += '<p>❌ API error: ' + e.message + '</p>';
+            });
+    </script>
+</body>
+</html>

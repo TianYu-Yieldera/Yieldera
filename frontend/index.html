@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PointFi Protocol · 积分金融协议</title>
+    <link rel="icon" href="/pointfi-logo-mark.svg" type="image/svg+xml" />
+    <style>
+      :root { --bg:#0F172A; --text:#FFF; --muted:#a3a3a3;
+              --grad: linear-gradient(135deg,#6366F1 0%, #A855F7 55%, #22D3EE 100%); }
+      html,body,#root { height:100%; margin:0; }
+      body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans SC', sans-serif; }
+      a { color: inherit; text-decoration: none; }
+      .container { max-width: 1160px; margin: 0 auto; padding: 24px; }
+      .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 16px; box-shadow: 0 10px 24px rgba(0,0,0,.2); }
+      .btn { background: var(--grad); border: 0; color:#fff; padding:10px 14px; border-radius: 12px; cursor: pointer; }
+      .row { display:flex; gap:12px; align-items:center; }
+      .grid { display:grid; gap:12px; }
+      @media(min-width: 640px){ .grid-2{ grid-template-columns: repeat(2, 1fr); } }
+      @media(min-width: 980px){ .grid-3{ grid-template-columns: repeat(3, 1fr); } }
+      .muted { color: var(--muted); font-size: 12px; }
+      header { border-bottom: 1px solid rgba(255,255,255,.1); padding: 12px 24px; display:flex; align-items:center; justify-content:space-between; }
+      nav a { margin-right: 14px; opacity:.9; }
+      nav a:hover { opacity:1; }
+      table { width:100%; border-collapse: collapse; font-size:14px; }
+      th, td{ padding:10px 8px; border-top:1px solid rgba(255,255,255,.1); }
+      .kpi { background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); padding:16px; border-radius:16px; }
+      .kpi .title{ color:#cbd5e1; font-size:12px; }
+      .kpi .value{ font-weight:800; font-size:22px; margin-top:4px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

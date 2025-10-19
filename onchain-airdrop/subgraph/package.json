@@ -1,0 +1,30 @@
+{
+  "name": "yieldera-airdrop-subgraph",
+  "version": "1.0.0",
+  "description": "Yieldera 链上空投 Subgraph 索引",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ yieldera-airdrop",
+    "create-local": "graph create --node http://localhost:8020/ yieldera-airdrop",
+    "remove-local": "graph remove --node http://localhost:8020/ yieldera-airdrop",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 yieldera-airdrop"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yieldera/loyalty-points-system"
+  },
+  "keywords": [
+    "yieldera",
+    "airdrop",
+    "subgraph",
+    "the-graph",
+    "ethereum"
+  ],
+  "author": "Yieldera Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.56.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}
