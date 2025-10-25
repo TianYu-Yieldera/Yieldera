@@ -130,13 +130,111 @@ async function main() {
   console.log("  Version:", moduleInfo.version);
   console.log("  State:", moduleInfo.state === 0 ? "INACTIVE" : moduleInfo.state === 1 ? "ACTIVE" : "PAUSED");
 
-  // ============ Deploy RWA Sub-Module (Demo) ============
-  console.log("\n🔧 Deploying RWA Sub-Module (Demo)...");
+  // ============ Deploy RWA Sub-Modules ============
+  console.log("\n🔧 Deploying RWA Sub-Modules...");
 
+  // 1. OrderManager
   const OrderManager = await ethers.getContractFactory("OrderManager");
   const orderManager = await OrderManager.deploy();
   await orderManager.waitForDeployment();
   console.log("✓ OrderManager:", await orderManager.getAddress());
+
+  // 2. MatchingEngine
+  const MatchingEngine = await ethers.getContractFactory("MatchingEngine");
+  const matchingEngine = await MatchingEngine.deploy(await orderManager.getAddress());
+  await matchingEngine.waitForDeployment();
+  console.log("✓ MatchingEngine:", await matchingEngine.getAddress());
+
+  // 3. MarketDataProvider
+  const MarketDataProvider = await ethers.getContractFactory("MarketDataProvider");
+  const marketDataProvider = await MarketDataProvider.deploy();
+  await marketDataProvider.waitForDeployment();
+  console.log("✓ MarketDataProvider:", await marketDataProvider.getAddress());
+
+  // 4. FeeCalculator (makerFee: 25 bp = 0.25%, takerFee: 50 bp = 0.50%)
+  const FeeCalculator = await ethers.getContractFactory("FeeCalculator");
+  const feeCalculator = await FeeCalculator.deploy(
+    await orderManager.getAddress(),
+    await collateralToken.getAddress(),
+    25,
+    50
+  );
+  await feeCalculator.waitForDeployment();
+  console.log("✓ FeeCalculator:", await feeCalculator.getAddress());
+
+  // 5. LiquidityAnalyzer
+  const LiquidityAnalyzer = await ethers.getContractFactory("LiquidityAnalyzer");
+  const liquidityAnalyzer = await LiquidityAnalyzer.deploy(await orderManager.getAddress());
+  await liquidityAnalyzer.waitForDeployment();
+  console.log("✓ LiquidityAnalyzer:", await liquidityAnalyzer.getAddress());
+
+  // ============ Deploy RWAModuleV3 with Proxy ============
+  console.log("\n🚀 Deploying RWAModuleV3 Coordinator...");
+
+  // Mock tokens for RWA trading
+  const rwaToken = await MockERC20.deploy("Mock RWA Token", "mRWA");
+  await rwaToken.waitForDeployment();
+  console.log("✓ RWA Token:", await rwaToken.getAddress());
+
+  const legacyOrderBook = await orderManager.getAddress(); // Use OrderManager as legacy
+
+  const RWAModuleV3 = await ethers.getContractFactory("RWAModuleV3");
+
+  const rwaModuleV3 = await upgrades.deployProxy(
+    RWAModuleV3,
+    [
+      await orderManager.getAddress(),
+      await matchingEngine.getAddress(),
+      await marketDataProvider.getAddress(),
+      await feeCalculator.getAddress(),
+      await liquidityAnalyzer.getAddress(),
+      await rwaToken.getAddress(),
+      await collateralToken.getAddress(),
+      legacyOrderBook
+    ],
+    {
+      kind: "uups",
+      initializer: "initialize"
+    }
+  );
+  await rwaModuleV3.waitForDeployment();
+
+  const rwaProxyAddress = await rwaModuleV3.getAddress();
+  const rwaImplAddress = await upgrades.erc1967.getImplementationAddress(rwaProxyAddress);
+
+  console.log("✓ RWAModuleV3 Proxy:", rwaProxyAddress);
+  console.log("✓ RWAModuleV3 Implementation:", rwaImplAddress);
+
+  // ============ Configure RWA Sub-Modules ============
+  console.log("\n⚙️  Configuring RWA sub-modules...");
+
+  await orderManager.setRWAModule(rwaProxyAddress);
+  console.log("✓ OrderManager configured");
+
+  await matchingEngine.setRWAModule(rwaProxyAddress);
+  console.log("✓ MatchingEngine configured");
+
+  await marketDataProvider.setRWAModule(rwaProxyAddress);
+  console.log("✓ MarketDataProvider configured");
+
+  await feeCalculator.setRWAModule(rwaProxyAddress);
+  console.log("✓ FeeCalculator configured");
+
+  await liquidityAnalyzer.setRWAModule(rwaProxyAddress);
+  console.log("✓ LiquidityAnalyzer configured");
+
+  // ============ Verify RWA Module Health ============
+  console.log("\n🏥 Verifying RWA module health...");
+
+  const [rwaHealthy, rwaMessage] = await rwaModuleV3.healthCheck();
+  console.log("Health Status:", rwaHealthy ? "✓ HEALTHY" : "✗ UNHEALTHY");
+  console.log("Health Message:", rwaMessage);
+
+  const rwaModuleInfo = await rwaModuleV3.getModuleInfo();
+  console.log("\nRWA Module Info:");
+  console.log("  Name:", rwaModuleInfo.name);
+  console.log("  Version:", rwaModuleInfo.version);
+  console.log("  State:", rwaModuleInfo.state === 0 ? "INACTIVE" : rwaModuleInfo.state === 1 ? "ACTIVE" : "PAUSED");
 
   // ============ Summary ============
   console.log("\n" + "=".repeat(60));
@@ -146,7 +244,8 @@ async function main() {
   const summary = {
     "Tokens": {
       "Collateral Token": await collateralToken.getAddress(),
-      "Debt Token": await debtToken.getAddress()
+      "Debt Token": await debtToken.getAddress(),
+      "RWA Token": await rwaToken.getAddress()
     },
     "Vault Sub-Modules": {
       "CollateralManager": await collateralManager.getAddress(),
@@ -160,7 +259,15 @@ async function main() {
       "Implementation": vaultImplAddress
     },
     "RWA Sub-Modules": {
-      "OrderManager": await orderManager.getAddress()
+      "OrderManager": await orderManager.getAddress(),
+      "MatchingEngine": await matchingEngine.getAddress(),
+      "MarketDataProvider": await marketDataProvider.getAddress(),
+      "FeeCalculator": await feeCalculator.getAddress(),
+      "LiquidityAnalyzer": await liquidityAnalyzer.getAddress()
+    },
+    "RWAModuleV3": {
+      "Proxy": rwaProxyAddress,
+      "Implementation": rwaImplAddress
     }
   };
 
