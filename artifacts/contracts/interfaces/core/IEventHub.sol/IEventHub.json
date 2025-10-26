@@ -1,0 +1,1063 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IEventHub",
+  "sourceName": "contracts/interfaces/core/IEventHub.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "name": "EventCallbackExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "EventCallbackFailed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "moduleId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum IEventHub.EventCategory",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "eventType",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "EventPublished",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "fromModule",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "toModule",
+          "type": "bytes32"
+        }
+      ],
+      "name": "EventRouted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriberModule",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "publisherModule",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "eventType",
+          "type": "string"
+        }
+      ],
+      "name": "EventSubscribed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "subscriberModule",
+          "type": "bytes32"
+        }
+      ],
+      "name": "EventUnsubscribed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sourceModule",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "targetModule",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "eventType",
+          "type": "string"
+        }
+      ],
+      "name": "addRoutingRule",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "ruleId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "areCallbacksEnabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "eventType",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "eventData",
+          "type": "bytes"
+        }
+      ],
+      "name": "emitSystemEvent",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getEvent",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "eventId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "emitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IEventHub.HubEvent",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getEventHubStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalEvents",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalSubscriptions",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "eventsLast24h",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "criticalEventsLast24h",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum IEventHub.EventCategory",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEventsByCategory",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "eventId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "emitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IEventHub.HubEvent[]",
+          "name": "events",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "minSeverity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fromTimestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "toTimestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fromBlock",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "toBlock",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IEventHub.EventFilter",
+          "name": "filter",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEventsByFilter",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "eventId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "emitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IEventHub.HubEvent[]",
+          "name": "events",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum IEventHub.EventSeverity",
+          "name": "minSeverity",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEventsBySeverity",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "eventId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "emitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IEventHub.HubEvent[]",
+          "name": "events",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "moduleId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getModuleActivityStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "eventCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastEventTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "subscriptionCount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "moduleId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getModuleEventCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "moduleId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getModuleEvents",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "eventId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "emitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IEventHub.HubEvent[]",
+          "name": "events",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "moduleId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getModuleSubscriptions",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRecentEvents",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "eventId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "moduleId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum IEventHub.EventSeverity",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "emitter",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IEventHub.HubEvent[]",
+          "name": "events",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSubscription",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "subscriptionId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "subscriberModule",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "publisherModule",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "enum IEventHub.EventCategory",
+              "name": "category",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "eventType",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "callbackAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes4",
+              "name": "callbackSelector",
+              "type": "bytes4"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IEventHub.EventSubscription",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum IEventHub.EventCategory",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "enum IEventHub.EventSeverity",
+          "name": "severity",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "eventType",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "eventData",
+          "type": "bytes"
+        }
+      ],
+      "name": "publishEvent",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum IEventHub.EventCategory[]",
+          "name": "categories",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "enum IEventHub.EventSeverity[]",
+          "name": "severities",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "eventTypes",
+          "type": "string[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "eventDataArray",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "publishEventBatch",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "eventIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "ruleId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "removeRoutingRule",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "eventId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "targetModule",
+          "type": "bytes32"
+        }
+      ],
+      "name": "routeEvent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "enabled",
+          "type": "bool"
+        }
+      ],
+      "name": "setCallbacksEnabled",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "maxEvents",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaxStoredEvents",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bool",
+          "name": "isActive",
+          "type": "bool"
+        }
+      ],
+      "name": "setSubscriptionActive",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "publisherModule",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "enum IEventHub.EventCategory",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "eventType",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "callbackAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "callbackSelector",
+          "type": "bytes4"
+        }
+      ],
+      "name": "subscribe",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "subscriptionId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "unsubscribe",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
