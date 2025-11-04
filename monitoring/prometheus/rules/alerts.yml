@@ -1,0 +1,186 @@
+groups:
+  - name: system_alerts
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: rate(loyalty_system_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected in {{ $labels.service }}"
+          description: "Error rate is {{ $value }} errors/sec for service {{ $labels.service }}"
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 2 minutes"
+
+  - name: bridge_alerts
+    interval: 30s
+    rules:
+      - alert: HighBridgePendingMessages
+        expr: loyalty_bridge_pending_messages > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of pending bridge messages"
+          description: "{{ $value }} messages pending in bridge for over 10 minutes"
+
+      - alert: SlowBridgeConfirmation
+        expr: histogram_quantile(0.95, rate(loyalty_bridge_confirmation_seconds_bucket[10m])) > 1800
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bridge confirmation time is high"
+          description: "95th percentile bridge confirmation time is {{ $value }}s (over 30 minutes)"
+
+      - alert: HighBridgeRetryRate
+        expr: rate(loyalty_bridge_retry_total[5m]) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High bridge retry rate"
+          description: "Bridge retry rate is {{ $value }} retries/sec for {{ $labels.direction }}"
+
+  - name: kafka_alerts
+    interval: 30s
+    rules:
+      - alert: HighKafkaLag
+        expr: loyalty_kafka_consumer_lag > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Kafka consumer lag on {{ $labels.topic }}"
+          description: "Consumer lag is {{ $value }} messages on topic {{ $labels.topic }}, partition {{ $labels.partition }}"
+
+      - alert: CriticalKafkaLag
+        expr: loyalty_kafka_consumer_lag > 10000
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical Kafka consumer lag on {{ $labels.topic }}"
+          description: "Consumer lag is {{ $value }} messages on topic {{ $labels.topic }}, partition {{ $labels.partition }}"
+
+  - name: database_alerts
+    interval: 30s
+    rules:
+      - alert: HighDatabaseConnections
+        expr: loyalty_db_connections_active > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of active database connections"
+          description: "{{ $value }} active database connections"
+
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(loyalty_db_query_duration_seconds_bucket[5m])) > 1.0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile query duration is {{ $value }}s for operation {{ $labels.operation }}"
+
+  - name: api_alerts
+    interval: 30s
+    rules:
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(loyalty_api_request_duration_seconds_bucket[5m])) > 2.0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency on {{ $labels.endpoint }}"
+          description: "95th percentile latency is {{ $value }}s for {{ $labels.method }} {{ $labels.endpoint }}"
+
+      - alert: HighAPI4xxRate
+        expr: sum(rate(loyalty_api_requests_total{status=~"4.."}[5m])) / sum(rate(loyalty_api_requests_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 4xx error rate"
+          description: "4xx error rate is {{ $value | humanizePercentage }}"
+
+      - alert: HighAPI5xxRate
+        expr: sum(rate(loyalty_api_requests_total{status=~"5.."}[5m])) / sum(rate(loyalty_api_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate"
+          description: "5xx error rate is {{ $value | humanizePercentage }}"
+
+  - name: treasury_alerts
+    interval: 60s
+    rules:
+      - alert: TreasuryTVLDropped
+        expr: (loyalty_treasury_tvl_usd - loyalty_treasury_tvl_usd offset 1h) / loyalty_treasury_tvl_usd offset 1h < -0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Treasury TVL dropped significantly"
+          description: "Treasury TVL dropped by more than 10% in the last hour"
+
+      - alert: HighTreasuryOrderFailureRate
+        expr: sum(rate(loyalty_treasury_orders_total{status="failed"}[10m])) / sum(rate(loyalty_treasury_orders_total[10m])) > 0.2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High treasury order failure rate"
+          description: "Treasury order failure rate is {{ $value | humanizePercentage }}"
+
+  - name: defi_alerts
+    interval: 30s
+    rules:
+      - alert: HighDeFiAdapterFailureRate
+        expr: sum(rate(loyalty_defi_adapter_calls_total{status="failed"}[5m])) by (protocol) / sum(rate(loyalty_defi_adapter_calls_total[5m])) by (protocol) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High DeFi adapter failure rate for {{ $labels.protocol }}"
+          description: "Failure rate is {{ $value | humanizePercentage }} for protocol {{ $labels.protocol }}"
+
+      - alert: SlowDeFiAdapterCalls
+        expr: histogram_quantile(0.95, rate(loyalty_defi_adapter_duration_seconds_bucket[5m])) > 10.0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow DeFi adapter calls for {{ $labels.protocol }}"
+          description: "95th percentile duration is {{ $value }}s for {{ $labels.protocol }} {{ $labels.operation }}"
+
+  - name: event_processing_alerts
+    interval: 30s
+    rules:
+      - alert: HighEventProcessingFailureRate
+        expr: sum(rate(loyalty_events_processed_total{status="failed"}[5m])) by (layer) / sum(rate(loyalty_events_processed_total[5m])) by (layer) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High event processing failure rate on {{ $labels.layer }}"
+          description: "Failure rate is {{ $value | humanizePercentage }} on {{ $labels.layer }}"
+
+      - alert: SlowEventProcessing
+        expr: histogram_quantile(0.95, rate(loyalty_event_processing_duration_seconds_bucket[5m])) > 5.0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow event processing on {{ $labels.layer }}"
+          description: "95th percentile processing duration is {{ $value }}s for {{ $labels.layer }} {{ $labels.event_type }}"

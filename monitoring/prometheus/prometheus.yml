@@ -1,0 +1,84 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'loyalty-points-system'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "rules/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # L1 Listener Service
+  - job_name: 'l1-listener'
+    static_configs:
+      - targets: ['l1-listener:8081']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # L2 Listener Service
+  - job_name: 'l2-listener'
+    static_configs:
+      - targets: ['l2-listener:8082']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Bridge Monitor Service
+  - job_name: 'bridge-monitor'
+    static_configs:
+      - targets: ['bridge-monitor:8083']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Kafka Consumer Service
+  - job_name: 'consumer'
+    static_configs:
+      - targets: ['consumer:8084']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # API Service
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Treasury Price Oracle Service
+  - job_name: 'treasury-oracle'
+    static_configs:
+      - targets: ['treasury-oracle:8085']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Kafka Exporter
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+    scrape_interval: 30s
+
+  # Node Exporter (System metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s

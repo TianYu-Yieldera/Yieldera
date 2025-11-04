@@ -17,6 +17,7 @@ import (
 
   "github.com/gin-gonic/gin"
   "github.com/graphql-go/graphql"
+  "github.com/prometheus/client_golang/prometheus/promhttp"
   "loyalty-points-system/internal/config"
   "loyalty-points-system/internal/db"
   "loyalty-points-system/internal/airdrop"
@@ -41,6 +42,7 @@ func main() {
   r.Use(cors(cfg.APIAllowOrigin))
   r.Use(timeoutMiddleware(30 * time.Second))
   r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"ok": true}) })
+  r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
   // Authentication routes (public, no auth required)
   auth := r.Group("/auth")

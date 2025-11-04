@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"loyalty-points-system/internal/config"
 	"loyalty-points-system/internal/kafka"
 	"loyalty-points-system/internal/listener"
@@ -111,6 +112,9 @@ func main() {
 		log.Fatalf("❌ Failed to start Bridge listener: %v", err)
 	}
 	log.Println("✅ Bridge Listener started")
+
+	// Prometheus metrics endpoint
+	http.Handle("/metrics", promhttp.Handler())
 
 	// Health check endpoint
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
