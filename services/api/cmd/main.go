@@ -265,6 +265,32 @@ func main() {
     bridgeAPI.GET("/stats", handlers.GetBridgeStats(database))
   }
 
+  // Treasury routes (US Treasury tokenization)
+  treasury := r.Group("/api/v1/treasury")
+  {
+    // Asset routes
+    treasury.GET("/assets", handlers.GetTreasuryAssets(database))
+    treasury.GET("/assets/:assetId", handlers.GetTreasuryAssetDetail(database))
+    treasury.GET("/assets/:assetId/price-history", handlers.GetTreasuryPriceHistory(database))
+    treasury.GET("/assets/:assetId/trades", handlers.GetTreasuryTradeHistory(database))
+
+    // User portfolio routes
+    treasury.GET("/user/:address/holdings", handlers.GetUserTreasuryHoldings(database))
+    treasury.GET("/user/:address/yield", handlers.GetUserTreasuryYield(database))
+
+    // Market routes
+    treasury.GET("/market/:assetId/orders", handlers.GetTreasuryMarketOrders(database))
+    treasury.POST("/market/order", handlers.CreateTreasuryOrder(database))
+    treasury.DELETE("/market/order/:orderId", handlers.CancelTreasuryOrder(database))
+
+    // Yield routes
+    treasury.POST("/yield/claim", handlers.ClaimTreasuryYield(database))
+    treasury.GET("/yield/distributions", handlers.GetYieldDistributions(database))
+
+    // Stats route
+    treasury.GET("/stats", handlers.GetTreasuryStats(database))
+  }
+
   schema, err := buildSchema(database)
   if err != nil {
     log.Fatal("GraphQL schema error: ", err)
