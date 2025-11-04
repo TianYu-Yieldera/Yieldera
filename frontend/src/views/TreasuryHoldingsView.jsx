@@ -5,7 +5,7 @@ import { useWallet } from '../web3/WalletContext';
 import treasuryService from '../services/treasuryService';
 
 export default function TreasuryHoldingsView() {
-  const { account, isConnected } = useWallet();
+  const { account, isConnected, signer } = useWallet();
   const [holdings, setHoldings] = useState([]);
   const [yieldData, setYieldData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,14 +77,47 @@ export default function TreasuryHoldingsView() {
   };
 
   const handleClaimYield = async (assetId) => {
+    if (!signer) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
     try {
-      // TODO: Implement yield claiming with wallet signature
+      // Create EIP-712 typed data for signature
+      const domain = {
+        name: 'Treasury Yield Distributor',
+        version: '1',
+        chainId: await signer.provider.getNetwork().then(n => n.chainId),
+        verifyingContract: '0x0000000000000000000000000000000000000000', // TODO: Replace with actual yield distributor contract address
+      };
+
+      const types = {
+        ClaimYield: [
+          { name: 'assetId', type: 'uint256' },
+          { name: 'userAddress', type: 'address' },
+          { name: 'timestamp', type: 'uint256' },
+        ],
+      };
+
+      const value = {
+        assetId: assetId,
+        userAddress: account,
+        timestamp: Math.floor(Date.now() / 1000),
+      };
+
+      // Sign the typed data
+      const signature = await signer.signTypedData(domain, types, value);
+
       await treasuryService.claimYield({
         asset_id: assetId,
-        signature: 'mock_signature',
+        user_address: account,
+        signature: signature,
       });
+
+      alert('Yield claimed successfully!');
       fetchHoldings(); // Refresh after claim
     } catch (err) {
+      console.error('Claim yield error:', err);
       alert('Failed to claim yield: ' + err.message);
     }
   };

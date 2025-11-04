@@ -4,7 +4,7 @@ import { useWallet } from '../web3/WalletContext';
 import treasuryService from '../services/treasuryService';
 
 export default function TradingForm({ asset, onOrderCreated }) {
-  const { account, isConnected } = useWallet();
+  const { account, isConnected, signer } = useWallet();
   const [orderType, setOrderType] = useState('BUY');
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('');
@@ -34,6 +34,11 @@ export default function TradingForm({ asset, onOrderCreated }) {
       return;
     }
 
+    if (!signer) {
+      setError('Signer not available');
+      return;
+    }
+
     if (!amount || !price) {
       setError('Please enter amount and price');
       return;
@@ -47,13 +52,44 @@ export default function TradingForm({ asset, onOrderCreated }) {
     try {
       setLoading(true);
 
+      // Create EIP-712 typed data for signature
+      const domain = {
+        name: 'Treasury Marketplace',
+        version: '1',
+        chainId: await signer.provider.getNetwork().then(n => n.chainId),
+        verifyingContract: '0x0000000000000000000000000000000000000000', // TODO: Replace with actual marketplace contract address
+      };
+
+      const types = {
+        Order: [
+          { name: 'assetId', type: 'uint256' },
+          { name: 'userAddress', type: 'address' },
+          { name: 'orderType', type: 'string' },
+          { name: 'tokenAmount', type: 'uint256' },
+          { name: 'pricePerToken', type: 'uint256' },
+          { name: 'timestamp', type: 'uint256' },
+        ],
+      };
+
+      const value = {
+        assetId: asset.asset_id,
+        userAddress: account,
+        orderType: orderType,
+        tokenAmount: Math.floor(parseFloat(amount) * 1e18).toString(), // Convert to wei
+        pricePerToken: Math.floor(parseFloat(price) * 1e18).toString(), // Convert to wei
+        timestamp: Math.floor(Date.now() / 1000),
+      };
+
+      // Sign the typed data
+      const signature = await signer.signTypedData(domain, types, value);
+
       const orderData = {
         asset_id: asset.asset_id,
         user_address: account,
         order_type: orderType,
         token_amount: parseFloat(amount),
         price_per_token: parseFloat(price),
-        signature: 'mock_signature', // TODO: Implement wallet signature
+        signature: signature,
       };
 
       await treasuryService.createOrder(orderData);
@@ -70,6 +106,7 @@ export default function TradingForm({ asset, onOrderCreated }) {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
+      console.error('Order creation error:', err);
       setError(err.message || 'Failed to create order');
     } finally {
       setLoading(false);
