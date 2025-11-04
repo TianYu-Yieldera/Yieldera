@@ -88,7 +88,7 @@ export default function TreasuryHoldingsView() {
         name: 'Treasury Yield Distributor',
         version: '1',
         chainId: await signer.provider.getNetwork().then(n => n.chainId),
-        verifyingContract: '0x0000000000000000000000000000000000000000', // TODO: Replace with actual yield distributor contract address
+        verifyingContract: import.meta.env.VITE_TREASURY_YIELD_DISTRIBUTOR_ADDRESS || '0x0BE14D40188FCB5924c36af46630faBD76698A80',
       };
 
       const types = {

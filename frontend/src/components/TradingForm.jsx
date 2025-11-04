@@ -57,7 +57,7 @@ export default function TradingForm({ asset, onOrderCreated }) {
         name: 'Treasury Marketplace',
         version: '1',
         chainId: await signer.provider.getNetwork().then(n => n.chainId),
-        verifyingContract: '0x0000000000000000000000000000000000000000', // TODO: Replace with actual marketplace contract address
+        verifyingContract: import.meta.env.VITE_TREASURY_MARKETPLACE_ADDRESS || '0x90708d3663C3BE0DF3002dC293Bb06c45b67a334',
       };
 
       const types = {
