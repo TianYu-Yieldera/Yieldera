@@ -17,7 +17,7 @@ import (
 
   "github.com/gin-gonic/gin"
   "github.com/graphql-go/graphql"
-  konf "loyalty-points-system/internal/config"
+  "loyalty-points-system/internal/config"
   "loyalty-points-system/internal/db"
   "loyalty-points-system/internal/airdrop"
   "loyalty-points-system/services/api/handlers"
@@ -25,16 +25,20 @@ import (
 )
 
 func main() {
-  dsn := os.Getenv("DATABASE_URL")
-  if dsn == "" { log.Fatal("DATABASE_URL required") }
-  port := konf.Env("API_PORT", "8080")
-  allow := konf.Env("API_ALLOW_ORIGIN", "*")
-  database, err := db.Open(dsn)
+  log.Println("🚀 Starting API Service...")
+
+  // Load configuration
+  cfg, err := config.LoadConfig()
+  if err != nil {
+    log.Fatalf("Failed to load config: %v", err)
+  }
+
+  database, err := db.Open(cfg.DatabaseURL)
   if err != nil { log.Fatal(err) }
   defer database.Close()
 
   r := gin.Default()
-  r.Use(cors(allow))
+  r.Use(cors(cfg.APIAllowOrigin))
   r.Use(timeoutMiddleware(30 * time.Second))
   r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"ok": true}) })
 
@@ -47,7 +51,7 @@ func main() {
 
   // Proxy routes to microservices
   // Vault Service proxy
-  vaultTarget := konf.Env("VAULT_SERVICE_URL", "http://vault:8081")
+  vaultTarget := cfg.VaultServiceURL
   if vaultURL, err := url.Parse(vaultTarget); err == nil {
     vaultProxy := httputil.NewSingleHostReverseProxy(vaultURL)
     originalDirector := vaultProxy.Director
@@ -64,7 +68,7 @@ func main() {
   }
 
   // RWA Service proxy
-  rwaTarget := konf.Env("RWA_SERVICE_URL", "http://rwa:8082")
+  rwaTarget := cfg.RWAServiceURL
   if rwaURL, err := url.Parse(rwaTarget); err == nil {
     rwaProxy := httputil.NewSingleHostReverseProxy(rwaURL)
     originalDirector := rwaProxy.Director
@@ -81,7 +85,7 @@ func main() {
   }
 
   // Oracle Service proxy
-  oracleTarget := konf.Env("ORACLE_SERVICE_URL", "http://oracle:8083")
+  oracleTarget := cfg.OracleServiceURL
   if oracleURL, err := url.Parse(oracleTarget); err == nil {
     oracleProxy := httputil.NewSingleHostReverseProxy(oracleURL)
     originalDirector := oracleProxy.Director
@@ -224,6 +228,41 @@ func main() {
     publicAirdrop.POST("/campaigns/:id/claim", airdrop.ClaimAirdropHandler(database))
   }
 
+  // L1 routes (Layer 1 collateral management)
+  l1 := r.Group("/api/v1/l1")
+  {
+    l1.GET("/user/:address/balance", handlers.GetL1Balance(database))
+    l1.GET("/user/:address/deposits", handlers.GetL1Deposits(database))
+    l1.POST("/deposit", handlers.InitiateL1Deposit(database))
+    l1.POST("/withdraw", handlers.InitiateL1Withdrawal(database))
+    l1.GET("/state/snapshots", handlers.GetL1StateSnapshots(database))
+  }
+
+  // L2 routes (Layer 2 vault and RWA management)
+  l2 := r.Group("/api/v1/l2")
+  {
+    l2.GET("/user/:address/position", handlers.GetL2VaultPosition(database))
+    l2.GET("/vault/stats", handlers.GetL2VaultStats(database))
+    l2.GET("/strategies", handlers.GetL2Strategies(database))
+    l2.POST("/deposit", handlers.DepositToL2Vault(database))
+    l2.POST("/withdraw", handlers.WithdrawFromL2Vault(database))
+    l2.GET("/rwa/assets", handlers.GetL2RWAAssets(database))
+    l2.GET("/rwa/user/:address/holdings", handlers.GetL2RWAHoldings(database))
+    l2.GET("/rwa/marketplace/listings", handlers.GetL2RWAListings(database))
+    l2.GET("/rwa/governance/proposals", handlers.GetL2RWAProposals(database))
+  }
+
+  // Bridge routes (L1 <-> L2 cross-chain operations)
+  bridgeAPI := r.Group("/api/v1/bridge")
+  {
+    bridgeAPI.GET("/status/:messageHash", handlers.GetBridgeStatus(database))
+    bridgeAPI.GET("/user/:address/messages", handlers.GetUserBridgeHistory(database))
+    bridgeAPI.POST("/l1-to-l2", handlers.InitiateBridgeL1ToL2(database))
+    bridgeAPI.POST("/l2-to-l1", handlers.InitiateBridgeL2ToL1(database))
+    bridgeAPI.POST("/retry/:messageHash", handlers.RetryBridgeMessage(database))
+    bridgeAPI.GET("/stats", handlers.GetBridgeStats(database))
+  }
+
   schema, err := buildSchema(database)
   if err != nil {
     log.Fatal("GraphQL schema error: ", err)
@@ -238,7 +277,7 @@ func main() {
 
   // Create HTTP server
   srv := &http.Server{
-    Addr:    ":" + port,
+    Addr:    ":" + cfg.APIPort,
     Handler: r,
   }
 
@@ -260,7 +299,7 @@ func main() {
     log.Println("✅ Shutdown complete")
   }()
 
-  log.Printf("🚀 API on :%s", port)
+  log.Printf("🚀 API on :%s", cfg.APIPort)
   if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
     log.Fatal(err)
   }

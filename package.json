@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "devDependencies": {
     "@arbitrum/sdk": "^2.0.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
@@ -18,7 +17,7 @@
     "typechain": "^8.3.0"
   },
   "dependencies": {
-    "@chainlink/contracts": "^1.2.0",
+    "@chainlink/contracts": "^1.5.0",
     "@openzeppelin/contracts": "^5.4.0",
     "@openzeppelin/contracts-upgradeable": "^5.4.0"
   }
