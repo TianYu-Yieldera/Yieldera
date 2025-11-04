@@ -252,31 +252,38 @@ contract TreasuryMarketplace is ITreasuryMarketplace, AccessControl, ReentrancyG
         require(block.timestamp < sellOrder.expiresAt, "Sell order expired");
         require(buyOrder.pricePerToken >= sellOrder.pricePerToken, "Price mismatch");
 
-        // Calculate tradeable amount
-        uint256 buyRemaining = buyOrder.tokenAmount - buyOrder.filledAmount;
-        uint256 sellRemaining = sellOrder.tokenAmount - sellOrder.filledAmount;
-        uint256 tradeAmount = amount;
+        // Calculate and execute trade
+        uint256 tradeAmount;
+        uint256 executionPrice;
+        uint256 totalValue;
+        uint256 fee;
 
-        if (tradeAmount > buyRemaining) tradeAmount = buyRemaining;
-        if (tradeAmount > sellRemaining) tradeAmount = sellRemaining;
+        {
+            uint256 buyRemaining = buyOrder.tokenAmount - buyOrder.filledAmount;
+            uint256 sellRemaining = sellOrder.tokenAmount - sellOrder.filledAmount;
+            tradeAmount = amount;
 
-        require(tradeAmount > 0, "No amount to trade");
+            if (tradeAmount > buyRemaining) tradeAmount = buyRemaining;
+            if (tradeAmount > sellRemaining) tradeAmount = sellRemaining;
 
-        // Use sell order price for execution
-        uint256 executionPrice = sellOrder.pricePerToken;
-        uint256 totalValue = (tradeAmount * executionPrice) / 1e18;
-        uint256 fee = calculateFee(totalValue);
-        uint256 sellerReceives = totalValue - fee;
+            require(tradeAmount > 0, "No amount to trade");
 
-        // Transfer treasury tokens to buyer
-        address tokenAddress = assetFactory.getTokenAddress(buyOrder.assetId);
-        IERC20(tokenAddress).safeTransfer(buyOrder.user, tradeAmount);
+            // Use sell order price for execution
+            executionPrice = sellOrder.pricePerToken;
+            totalValue = (tradeAmount * executionPrice) / 1e18;
+            fee = calculateFee(totalValue);
+            uint256 sellerReceives = totalValue - fee;
 
-        // Transfer payment to seller
-        IERC20(paymentToken).safeTransfer(sellOrder.user, sellerReceives);
+            // Transfer treasury tokens to buyer
+            address tokenAddress = assetFactory.getTokenAddress(buyOrder.assetId);
+            IERC20(tokenAddress).safeTransfer(buyOrder.user, tradeAmount);
 
-        // Collect fee
-        collectedFees[paymentToken] += fee;
+            // Transfer payment to seller
+            IERC20(paymentToken).safeTransfer(sellOrder.user, sellerReceives);
+
+            // Collect fee
+            collectedFees[paymentToken] += fee;
+        }
 
         // Update buy order
         buyOrder.filledAmount += tradeAmount;
@@ -423,7 +430,9 @@ contract TreasuryMarketplace is ITreasuryMarketplace, AccessControl, ReentrancyG
 
     /**
      * @notice Get market statistics
-     * @return stats Market statistics
+     * @return totalOrders_ Total number of orders
+     * @return totalTrades_ Total number of trades
+     * @return totalVolume_ Total trading volume
      */
     function getMarketStats() external view returns (
         uint256 totalOrders_,
