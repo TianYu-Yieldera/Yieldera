@@ -1,10 +1,8 @@
-import "@nomicfoundation/hardhat-toolbox";
-import * as dotenv from "dotenv";
-
-dotenv.config();
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
-export default {
+module.exports = {
   solidity: {
     compilers: [
       {
@@ -14,6 +12,7 @@ export default {
             enabled: true,
             runs: 200,
           },
+          viaIR: true,
         },
       },
       {
@@ -29,7 +28,7 @@ export default {
   },
   paths: {
     sources: "./contracts",
-    tests: "./contracts/test",
+    tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts"
   },
