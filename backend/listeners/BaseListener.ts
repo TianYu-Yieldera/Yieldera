@@ -130,13 +130,19 @@ export abstract class BaseListener extends EventEmitter {
     console.log(`[${this.listenerName}] Stopping listener...`);
     this.isRunning = false;
 
-    // 移除所有监听器
-    this.contract.removeAllListeners();
+    try {
+      // 移除所有监听器
+      this.contract.removeAllListeners();
 
-    // 关闭Provider
-    await this.provider.destroy();
+      // 关闭Provider
+      if (this.provider && this.provider.websocket) {
+        await this.provider.destroy();
+      }
+    } catch (error: any) {
+      // Ignore errors during cleanup
+      console.log(`[${this.listenerName}] Cleanup completed with warnings`);
+    }
 
-    this.emit('stopped');
     console.log(`[${this.listenerName}] Listener stopped`);
   }
 
