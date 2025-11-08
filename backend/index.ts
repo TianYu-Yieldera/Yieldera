@@ -5,6 +5,9 @@
 import dotenv from 'dotenv';
 import { UniswapListener } from './listeners/adapters/UniswapListener';
 import { AaveListener } from './listeners/adapters/AaveListener';
+import { CompoundListener } from './listeners/adapters/CompoundListener';
+import { MarketplaceListener } from './listeners/treasury/MarketplaceListener';
+import { AssetFactoryListener } from './listeners/treasury/AssetFactoryListener';
 import { MONITORING_CONFIG, validateConfig } from './config/monitoring';
 
 // 加载环境变量
@@ -22,6 +25,9 @@ class MonitoringSystem {
     try {
       // 启动DeFi适配器监听
       await this.startAdapterListeners();
+
+      // 启动Treasury监听
+      await this.startTreasuryListeners();
 
       // 设置告警处理
       this.setupAlertHandlers();
@@ -78,7 +84,72 @@ class MonitoringSystem {
       this.listeners.set('Aave', aaveListener);
     }
 
+    // Compound监听
+    if (contracts.compoundAdapter) {
+      const compoundListener = new CompoundListener(
+        blockchain.arbitrumSepoliaWs,
+        contracts.compoundAdapter
+      );
+
+      // 监听事件
+      compoundListener.on('supply', (data) => this.handleCompoundEvent('supply', data));
+      compoundListener.on('withdraw', (data) => this.handleCompoundEvent('withdraw', data));
+      compoundListener.on('supplyRateUpdated', (data) => this.handleRateUpdate('supply', data));
+      compoundListener.on('borrowRateUpdated', (data) => this.handleRateUpdate('borrow', data));
+      compoundListener.on('alert', (alert) => this.handleAlert(alert));
+      compoundListener.on('error', (error) => this.handleError('Compound', error));
+
+      await compoundListener.start();
+      this.listeners.set('Compound', compoundListener);
+    }
+
     console.log(`Started ${this.listeners.size} adapter listeners`);
+  }
+
+  /**
+   * 启动Treasury监听器
+   */
+  private async startTreasuryListeners() {
+    const { blockchain, contracts } = MONITORING_CONFIG;
+
+    // Marketplace监听
+    if (contracts.treasuryMarketplace) {
+      const marketplaceListener = new MarketplaceListener(
+        blockchain.arbitrumSepoliaWs,
+        contracts.treasuryMarketplace
+      );
+
+      // 监听事件
+      marketplaceListener.on('orderCreated', (data) => this.handleMarketplaceEvent('orderCreated', data));
+      marketplaceListener.on('orderFilled', (data) => this.handleMarketplaceEvent('orderFilled', data));
+      marketplaceListener.on('orderCancelled', (data) => this.handleMarketplaceEvent('orderCancelled', data));
+      marketplaceListener.on('alert', (alert) => this.handleAlert(alert));
+      marketplaceListener.on('error', (error) => this.handleError('Marketplace', error));
+
+      await marketplaceListener.start();
+      this.listeners.set('TreasuryMarketplace', marketplaceListener);
+    }
+
+    // AssetFactory监听
+    if (contracts.treasuryAssetFactory) {
+      const assetFactoryListener = new AssetFactoryListener(
+        blockchain.arbitrumSepoliaWs,
+        contracts.treasuryAssetFactory
+      );
+
+      // 监听事件
+      assetFactoryListener.on('assetCreated', (data) => this.handleAssetEvent('created', data));
+      assetFactoryListener.on('assetVerified', (data) => this.handleAssetEvent('verified', data));
+      assetFactoryListener.on('assetStatusUpdated', (data) => this.handleAssetEvent('statusUpdated', data));
+      assetFactoryListener.on('assetMatured', (data) => this.handleAssetEvent('matured', data));
+      assetFactoryListener.on('alert', (alert) => this.handleAlert(alert));
+      assetFactoryListener.on('error', (error) => this.handleError('AssetFactory', error));
+
+      await assetFactoryListener.start();
+      this.listeners.set('TreasuryAssetFactory', assetFactoryListener);
+    }
+
+    console.log(`Started ${this.listeners.size - (contracts.uniswapAdapter ? 1 : 0) - (contracts.aaveAdapter ? 1 : 0) - (contracts.compoundAdapter ? 1 : 0)} Treasury listeners`);
   }
 
   /**
@@ -122,6 +193,66 @@ class MonitoringSystem {
       initiator: data.initiator.substring(0, 10) + '...',
       amount: data.amount,
       premium: data.premium,
+      txHash: data.transactionHash,
+    });
+  }
+
+  /**
+   * 处理Compound事件
+   */
+  private handleCompoundEvent(type: string, data: any) {
+    console.log(`🏛️ Compound ${type}:`, {
+      user: data.user.substring(0, 10) + '...',
+      amount: data.amount,
+      txHash: data.transactionHash,
+    });
+  }
+
+  /**
+   * 处理利率更新
+   */
+  private handleRateUpdate(rateType: string, data: any) {
+    console.log(`📈 ${rateType} Rate Updated:`, {
+      newRate: data.newRate,
+      timestamp: data.timestamp,
+      txHash: data.transactionHash,
+    });
+  }
+
+  /**
+   * 处理Marketplace事件
+   */
+  private handleMarketplaceEvent(type: string, data: any) {
+    const eventEmojis: Record<string, string> = {
+      orderCreated: '📝',
+      orderFilled: '✅',
+      orderCancelled: '❌',
+    };
+
+    console.log(`${eventEmojis[type] || '📊'} Marketplace ${type}:`, {
+      orderId: data.orderId,
+      seller: data.seller?.substring(0, 10) + '...' || 'N/A',
+      buyer: data.buyer?.substring(0, 10) + '...' || 'N/A',
+      amount: data.amount || 'N/A',
+      txHash: data.transactionHash,
+    });
+  }
+
+  /**
+   * 处理Asset事件
+   */
+  private handleAssetEvent(type: string, data: any) {
+    const eventEmojis: Record<string, string> = {
+      created: '🆕',
+      verified: '✔️',
+      statusUpdated: '🔄',
+      matured: '💰',
+    };
+
+    console.log(`${eventEmojis[type] || '📄'} Asset ${type}:`, {
+      assetId: data.assetId,
+      symbol: data.symbol || 'N/A',
+      value: data.totalValue || data.finalValue || 'N/A',
       txHash: data.transactionHash,
     });
   }
