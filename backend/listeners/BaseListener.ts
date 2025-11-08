@@ -12,8 +12,8 @@ import { EventEmitter } from 'events';
  * - 区块重组处理
  */
 export abstract class BaseListener extends EventEmitter {
-  protected provider: ethers.WebSocketProvider;
-  protected contract: ethers.Contract;
+  protected provider!: ethers.WebSocketProvider;
+  protected contract!: ethers.Contract;
   protected isRunning: boolean = false;
   protected reconnectAttempts: number = 0;
   protected maxReconnectAttempts: number = 10;
@@ -40,17 +40,17 @@ export abstract class BaseListener extends EventEmitter {
     );
 
     // 监听连接状态
-    this.provider.websocket.on('open', () => {
+    (this.provider.websocket as any).on('open', () => {
       console.log(`[${this.listenerName}] WebSocket connected`);
       this.reconnectAttempts = 0;
     });
 
-    this.provider.websocket.on('close', () => {
+    (this.provider.websocket as any).on('close', () => {
       console.log(`[${this.listenerName}] WebSocket closed`);
       this.handleDisconnect();
     });
 
-    this.provider.websocket.on('error', (error) => {
+    (this.provider.websocket as any).on('error', (error: Error) => {
       console.error(`[${this.listenerName}] WebSocket error:`, error);
     });
   }

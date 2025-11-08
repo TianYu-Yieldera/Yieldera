@@ -17,9 +17,9 @@ export const MONITORING_CONFIG = {
     compoundAdapter: process.env.COMPOUND_ADAPTER_ADDRESS || '',
 
     // Treasury Contracts
-    treasuryMarketplace: process.env.TREASURY_MARKETPLACE_ADDRESS || '',
-    treasuryAssetFactory: process.env.TREASURY_ASSET_FACTORY_ADDRESS || '',
-    treasuryYieldDistributor: process.env.TREASURY_YIELD_DISTRIBUTOR_ADDRESS || '',
+    treasuryMarketplace: process.env.TREASURY_MARKETPLACE_ADDRESS || '0x90708d3663C3BE0DF3002dC293Bb06c45b67a334',
+    treasuryAssetFactory: process.env.TREASURY_ASSET_FACTORY_ADDRESS || '0x9e667a4ce092086C63c667e1Ea575B9Aa2a4762B',
+    treasuryYieldDistributor: process.env.TREASURY_YIELD_DISTRIBUTOR_ADDRESS || '0x0BE14D40188FCB5924c36af46630faBD76698A80',
   },
 
   // 风险阈值
