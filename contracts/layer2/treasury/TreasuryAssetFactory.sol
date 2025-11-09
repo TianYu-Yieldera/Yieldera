@@ -87,26 +87,27 @@ contract TreasuryAssetFactory is ITreasuryAsset, AccessControl, ReentrancyGuard,
         assetIdCounter++;
         assetId = assetIdCounter;
 
-        // Generate token name and symbol
-        (string memory name, string memory symbol) = _generateTokenMetadata(
-            treasuryType,
-            maturityTerm,
-            cusip
-        );
-
         // Deploy token contract
-        TreasuryToken token = new TreasuryToken(
-            name,
-            symbol,
-            assetId,
-            cusip,
-            maturityTerm,
-            maturityDate,
-            couponRate,
-            address(this)
-        );
+        {
+            (string memory name, string memory symbol) = _generateTokenMetadata(
+                treasuryType,
+                maturityTerm,
+                cusip
+            );
 
-        tokenAddress = address(token);
+            TreasuryToken token = new TreasuryToken(
+                name,
+                symbol,
+                assetId,
+                cusip,
+                maturityTerm,
+                maturityDate,
+                couponRate,
+                address(this)
+            );
+
+            tokenAddress = address(token);
+        }
 
         // Store asset info
         TreasuryAssetInfo storage asset = assets[assetId];

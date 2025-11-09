@@ -5,6 +5,7 @@ import (
   "database/sql"
   "encoding/json"
   "log"
+  "net/http"
   "os"
   "os/signal"
   "strings"
@@ -12,6 +13,7 @@ import (
   "syscall"
   "time"
 
+  "github.com/prometheus/client_golang/prometheus/promhttp"
   "loyalty-points-system/internal/config"
   "loyalty-points-system/internal/db"
   "loyalty-points-system/internal/models"
@@ -78,6 +80,20 @@ func main() {
   log.Printf("   - %s (L1 events)", topicL1)
   log.Printf("   - %s (L2 events)", topicL2)
   log.Printf("   - %s (bridge events)", topicBridge)
+
+  // Start HTTP server for metrics
+  http.Handle("/metrics", promhttp.Handler())
+  http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(200)
+    w.Write([]byte("ok"))
+  })
+
+  go func() {
+    log.Println("🏥 Metrics server on :8084")
+    if err := http.ListenAndServe(":8084", nil); err != nil {
+      log.Printf("HTTP server error: %v", err)
+    }
+  }()
 
   // Context for graceful shutdown
   ctx, cancel := context.WithCancel(context.Background())

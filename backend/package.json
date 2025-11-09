@@ -1,0 +1,36 @@
+{
+  "name": "loyalty-points-monitoring",
+  "version": "1.0.0",
+  "description": "AI Risk Monitoring System for DeFi Protocols and RWA Treasury",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node index.ts",
+    "build": "tsc",
+    "test": "jest",
+    "monitor": "npm run dev"
+  },
+  "keywords": [
+    "defi",
+    "risk",
+    "monitoring",
+    "ai",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.9.0",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11"
+  }
+}

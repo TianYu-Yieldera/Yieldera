@@ -69,7 +69,10 @@ export function WalletProvider({ children }) {
     }
   };
 
-  return <WalletCtx.Provider value={{ address, chainId, signer, connect, disconnect, switchToSepolia }}>{children}</WalletCtx.Provider>;
+  const isConnected = !!address;
+  const account = address;
+
+  return <WalletCtx.Provider value={{ address, account, chainId, signer, isConnected, connect, disconnect, switchToSepolia }}>{children}</WalletCtx.Provider>;
 }
 
 export const useWallet = () => useContext(WalletCtx);

@@ -34,6 +34,11 @@ type L2ListenerConfig struct {
 	RWACompliance       string
 	RWAValuation        string
 	RWAGovernance       string
+	// Treasury contracts
+	TreasuryFactory         string
+	TreasuryMarketplace     string
+	TreasuryYieldDistributor string
+	TreasuryPriceOracle     string
 }
 
 // L2Listener listens to L2 events and publishes to Kafka
@@ -118,6 +123,22 @@ func (l *L2Listener) Start(ctx context.Context) error {
 	for name, addr := range rwaContracts {
 		if addr != "" {
 			if err := l.subscribeRWAContract(ctx, logsCh, addr, name); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Subscribe to Treasury events
+	treasuryContracts := map[string]string{
+		"TreasuryFactory":         l.cfg.TreasuryFactory,
+		"TreasuryMarketplace":     l.cfg.TreasuryMarketplace,
+		"TreasuryYieldDistributor": l.cfg.TreasuryYieldDistributor,
+		"TreasuryPriceOracle":     l.cfg.TreasuryPriceOracle,
+	}
+
+	for name, addr := range treasuryContracts {
+		if addr != "" {
+			if err := l.subscribeTreasuryContract(ctx, logsCh, addr, name); err != nil {
 				return err
 			}
 		}
@@ -274,6 +295,14 @@ func (l *L2Listener) onLog(lg types.Log) {
 		eventType = l.parseRWAEvent(lg, &event, "valuation")
 	case common.HexToAddress(l.cfg.RWAGovernance).Hex():
 		eventType = l.parseRWAEvent(lg, &event, "governance")
+	case common.HexToAddress(l.cfg.TreasuryFactory).Hex():
+		eventType = l.parseTreasuryEvent(lg, &event, "factory")
+	case common.HexToAddress(l.cfg.TreasuryMarketplace).Hex():
+		eventType = l.parseTreasuryEvent(lg, &event, "marketplace")
+	case common.HexToAddress(l.cfg.TreasuryYieldDistributor).Hex():
+		eventType = l.parseTreasuryEvent(lg, &event, "yield_distributor")
+	case common.HexToAddress(l.cfg.TreasuryPriceOracle).Hex():
+		eventType = l.parseTreasuryEvent(lg, &event, "price_oracle")
 	default:
 		log.Printf("⚠️  [L2] Unknown contract address: %s", contractAddr)
 		return
@@ -427,6 +456,129 @@ func (l *L2Listener) onHead(n uint64, conf int) {
 			log.Printf("✅ [L2] Confirmed %s tx=%s block=%d user=%s", evt.EventType, evt.TxHash, evt.BlockNumber, evt.UserAddress)
 		}
 	}
+}
+
+// subscribeTreasuryContract subscribes to Treasury contract events
+func (l *L2Listener) subscribeTreasuryContract(ctx context.Context, logsCh chan types.Log, address string, name string) error {
+	addr := common.HexToAddress(address)
+
+	query := ethereum.FilterQuery{
+		Addresses: []common.Address{addr},
+	}
+
+	sub, err := l.client.SubscribeFilterLogs(ctx, query, logsCh)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("👂 [L2] Subscribed to %s events at %s", name, addr.Hex())
+
+	go func() {
+		<-sub.Err()
+		log.Printf("❌ [L2] %s subscription error", name)
+	}()
+
+	return nil
+}
+
+// parseTreasuryEvent parses Treasury contract events
+func (l *L2Listener) parseTreasuryEvent(lg types.Log, event *models.L2Event, contractType string) string {
+	event.ContractAddress = lg.Address.Hex()
+	event.TxHash = lg.TxHash.Hex()
+	event.BlockNumber = lg.BlockNumber
+
+	// Extract basic metadata
+	metadata := map[string]interface{}{
+		"contract_type": contractType,
+		"log_index":     lg.Index,
+	}
+
+	// Parse based on contract type and event signature
+	switch contractType {
+	case "factory":
+		// TreasuryTokenCreated event
+		if len(lg.Topics) > 0 {
+			eventSig := lg.Topics[0].Hex()
+			switch eventSig {
+			case "0x...": // TreasuryTokenCreated signature (to be filled with actual signature)
+				// Parse asset creation event
+				if len(lg.Topics) >= 3 {
+					metadata["asset_id"] = new(big.Int).SetBytes(lg.Topics[1][:]).String()
+					metadata["token_address"] = common.BytesToAddress(lg.Topics[2][:]).Hex()
+				}
+				event.Metadata = metadata
+				return "treasury_token_created"
+			}
+		}
+
+	case "marketplace":
+		// OrderCreated, OrderMatched, OrderCancelled events
+		if len(lg.Topics) > 0 {
+			eventSig := lg.Topics[0].Hex()
+			switch eventSig {
+			case "0x...": // OrderCreated signature
+				if len(lg.Topics) >= 3 {
+					metadata["order_id"] = new(big.Int).SetBytes(lg.Topics[1][:]).String()
+					metadata["user_address"] = common.BytesToAddress(lg.Topics[2][:]).Hex()
+					event.UserAddress = metadata["user_address"].(string)
+				}
+				event.Metadata = metadata
+				return "treasury_order_created"
+			case "0x...": // OrderMatched signature
+				if len(lg.Topics) >= 2 {
+					metadata["order_id"] = new(big.Int).SetBytes(lg.Topics[1][:]).String()
+				}
+				event.Metadata = metadata
+				return "treasury_order_matched"
+			case "0x...": // OrderCancelled signature
+				if len(lg.Topics) >= 2 {
+					metadata["order_id"] = new(big.Int).SetBytes(lg.Topics[1][:]).String()
+				}
+				event.Metadata = metadata
+				return "treasury_order_cancelled"
+			}
+		}
+
+	case "yield_distributor":
+		// YieldDeposited, YieldClaimed events
+		if len(lg.Topics) > 0 {
+			eventSig := lg.Topics[0].Hex()
+			switch eventSig {
+			case "0x...": // YieldDeposited signature
+				if len(lg.Topics) >= 2 {
+					metadata["asset_id"] = new(big.Int).SetBytes(lg.Topics[1][:]).String()
+				}
+				event.Metadata = metadata
+				return "treasury_yield_deposited"
+			case "0x...": // YieldClaimed signature
+				if len(lg.Topics) >= 3 {
+					metadata["user_address"] = common.BytesToAddress(lg.Topics[1][:]).Hex()
+					metadata["asset_id"] = new(big.Int).SetBytes(lg.Topics[2][:]).String()
+					event.UserAddress = metadata["user_address"].(string)
+				}
+				event.Metadata = metadata
+				return "treasury_yield_claimed"
+			}
+		}
+
+	case "price_oracle":
+		// PriceUpdated event
+		if len(lg.Topics) > 0 {
+			eventSig := lg.Topics[0].Hex()
+			switch eventSig {
+			case "0x...": // PriceUpdated signature
+				if len(lg.Topics) >= 2 {
+					metadata["asset_id"] = new(big.Int).SetBytes(lg.Topics[1][:]).String()
+				}
+				event.Metadata = metadata
+				return "treasury_price_updated"
+			}
+		}
+	}
+
+	// Default fallback
+	event.Metadata = metadata
+	return "treasury_unknown_event"
 }
 
 // Close closes the listener

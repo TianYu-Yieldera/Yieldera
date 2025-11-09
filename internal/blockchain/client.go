@@ -4,11 +4,9 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
-	"log"
 	"math/big"
-	"time"
+	"os"
 
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -16,221 +14,193 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-// Client wraps an Ethereum client with additional utilities
+// Client wraps Ethereum client with useful methods
 type Client struct {
-	ethClient *ethclient.Client
-	chainID   *big.Int
-	rpcURL    string
-}
-
-// Config holds configuration for blockchain client
-type Config struct {
-	RPCURL  string
-	ChainID int64
+	L1Client *ethclient.Client
+	L2Client *ethclient.Client
+	PrivateKey *ecdsa.PrivateKey
+	FromAddress common.Address
 }
 
 // NewClient creates a new blockchain client
-func NewClient(cfg Config) (*Client, error) {
-	client, err := ethclient.Dial(cfg.RPCURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to Ethereum node: %w", err)
+func NewClient() (*Client, error) {
+	// Get RPC URLs from environment
+	l1RPC := os.Getenv("L1_RPC_URL")
+	l2RPC := os.Getenv("L2_RPC_URL")
+	privateKeyHex := os.Getenv("PRIVATE_KEY")
+
+	if l1RPC == "" || l2RPC == "" {
+		return nil, fmt.Errorf("L1_RPC_URL and L2_RPC_URL must be set")
 	}
 
-	chainID := big.NewInt(cfg.ChainID)
+	// Connect to L1
+	l1Client, err := ethclient.Dial(l1RPC)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to L1: %w", err)
+	}
 
-	log.Printf("✅ Connected to Ethereum node: %s (ChainID: %d)", cfg.RPCURL, cfg.ChainID)
+	// Connect to L2
+	l2Client, err := ethclient.Dial(l2RPC)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to L2: %w", err)
+	}
+
+	// Load private key if provided
+	var privateKey *ecdsa.PrivateKey
+	var fromAddress common.Address
+
+	if privateKeyHex != "" {
+		// Remove 0x prefix if present
+		if len(privateKeyHex) > 2 && privateKeyHex[:2] == "0x" {
+			privateKeyHex = privateKeyHex[2:]
+		}
+
+		privateKey, err = crypto.HexToECDSA(privateKeyHex)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse private key: %w", err)
+		}
+
+		publicKey := privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			return nil, fmt.Errorf("failed to cast public key to ECDSA")
+		}
+
+		fromAddress = crypto.PubkeyToAddress(*publicKeyECDSA)
+	}
 
 	return &Client{
-		ethClient: client,
-		chainID:   chainID,
-		rpcURL:    cfg.RPCURL,
+		L1Client:    l1Client,
+		L2Client:    l2Client,
+		PrivateKey:  privateKey,
+		FromAddress: fromAddress,
 	}, nil
 }
 
-// Close closes the Ethereum client connection
-func (c *Client) Close() {
-	c.ethClient.Close()
-}
-
-// GetClient returns the underlying eth client
-func (c *Client) GetClient() *ethclient.Client {
-	return c.ethClient
-}
-
-// GetChainID returns the chain ID
-func (c *Client) GetChainID() *big.Int {
-	return c.chainID
-}
-
-// GetBlockNumber returns the latest block number
-func (c *Client) GetBlockNumber(ctx context.Context) (uint64, error) {
-	return c.ethClient.BlockNumber(ctx)
-}
-
-// GetBalance returns the balance of an address
-func (c *Client) GetBalance(ctx context.Context, address common.Address) (*big.Int, error) {
-	return c.ethClient.BalanceAt(ctx, address, nil)
-}
-
-// EstimateGas estimates gas for a transaction
-func (c *Client) EstimateGas(ctx context.Context, msg ethereum.CallMsg) (uint64, error) {
-	return c.ethClient.EstimateGas(ctx, msg)
-}
-
-// SuggestGasPrice suggests a gas price
-func (c *Client) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
-	return c.ethClient.SuggestGasPrice(ctx)
-}
-
-// WaitForTransaction waits for a transaction to be mined
-func (c *Client) WaitForTransaction(ctx context.Context, txHash common.Hash) (*types.Receipt, error) {
-	log.Printf("⏳ Waiting for transaction: %s", txHash.Hex())
-
-	ticker := time.NewTicker(2 * time.Second)
-	defer ticker.Stop()
-
-	timeout := time.After(5 * time.Minute)
-
-	for {
-		select {
-		case <-timeout:
-			return nil, fmt.Errorf("timeout waiting for transaction: %s", txHash.Hex())
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case <-ticker.C:
-			receipt, err := c.ethClient.TransactionReceipt(ctx, txHash)
-			if err != nil {
-				continue
-			}
-
-			if receipt.Status == types.ReceiptStatusSuccessful {
-				log.Printf("✅ Transaction successful: %s (Block: %d, Gas: %d)",
-					txHash.Hex(), receipt.BlockNumber.Uint64(), receipt.GasUsed)
-				return receipt, nil
-			}
-			return receipt, fmt.Errorf("transaction failed")
-		}
+// GetTransactOpts creates transaction options for L1
+func (c *Client) GetL1TransactOpts(ctx context.Context) (*bind.TransactOpts, error) {
+	if c.PrivateKey == nil {
+		return nil, fmt.Errorf("private key not configured")
 	}
-}
 
-// GetTransactionOpts returns transaction options for signing
-func (c *Client) GetTransactionOpts(ctx context.Context, privateKey *ecdsa.PrivateKey, value *big.Int) (*bind.TransactOpts, error) {
-	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, c.chainID)
+	chainID, err := c.L1Client.ChainID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get chain ID: %w", err)
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(c.PrivateKey, chainID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create transactor: %w", err)
 	}
 
-	publicKey := privateKey.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		return nil, fmt.Errorf("error casting public key to ECDSA")
-	}
-	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-
-	nonce, err := c.ethClient.PendingNonceAt(ctx, fromAddress)
+	// Get suggested gas price
+	gasPrice, err := c.L1Client.SuggestGasPrice(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get nonce: %w", err)
+		return nil, fmt.Errorf("failed to get gas price: %w", err)
 	}
 
-	gasPrice, err := c.ethClient.SuggestGasPrice(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to suggest gas price: %w", err)
-	}
-
-	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = value
-	auth.GasLimit = uint64(0)
 	auth.GasPrice = gasPrice
 	auth.Context = ctx
 
 	return auth, nil
 }
 
-// GetCallOpts returns call options for read-only calls
-func (c *Client) GetCallOpts(ctx context.Context) *bind.CallOpts {
-	return &bind.CallOpts{
-		Context: ctx,
-		Pending: false,
+// GetL2TransactOpts creates transaction options for L2
+func (c *Client) GetL2TransactOpts(ctx context.Context) (*bind.TransactOpts, error) {
+	if c.PrivateKey == nil {
+		return nil, fmt.Errorf("private key not configured")
 	}
-}
 
-// IsContract checks if an address is a contract
-func (c *Client) IsContract(ctx context.Context, address common.Address) (bool, error) {
-	code, err := c.ethClient.CodeAt(ctx, address, nil)
+	chainID, err := c.L2Client.ChainID(ctx)
 	if err != nil {
-		return false, err
+		return nil, fmt.Errorf("failed to get chain ID: %w", err)
 	}
-	return len(code) > 0, nil
-}
 
-// TransactionStatus represents the status of a transaction
-type TransactionStatus struct {
-	Hash        common.Hash
-	Status      string
-	BlockNumber uint64
-	GasUsed     uint64
-	Error       error
-}
-
-// GetTransactionStatus returns the status of a transaction
-func (c *Client) GetTransactionStatus(ctx context.Context, txHash common.Hash) (*TransactionStatus, error) {
-	receipt, err := c.ethClient.TransactionReceipt(ctx, txHash)
+	auth, err := bind.NewKeyedTransactorWithChainID(c.PrivateKey, chainID)
 	if err != nil {
-		_, isPending, err := c.ethClient.TransactionByHash(ctx, txHash)
-		if err != nil {
-			return nil, fmt.Errorf("transaction not found: %w", err)
-		}
-
-		if isPending {
-			return &TransactionStatus{
-				Hash:   txHash,
-				Status: "pending",
-			}, nil
-		}
-
-		return nil, fmt.Errorf("transaction not found")
+		return nil, fmt.Errorf("failed to create transactor: %w", err)
 	}
 
-	status := &TransactionStatus{
-		Hash:        txHash,
-		BlockNumber: receipt.BlockNumber.Uint64(),
-		GasUsed:     receipt.GasUsed,
-	}
-
-	if receipt.Status == types.ReceiptStatusSuccessful {
-		status.Status = "success"
-	} else {
-		status.Status = "failed"
-		status.Error = fmt.Errorf("transaction reverted")
-	}
-
-	return status, nil
-}
-
-// GasSettings contains gas pricing information
-type GasSettings struct {
-	GasPrice             *big.Int
-	MaxFeePerGas         *big.Int
-	MaxPriorityFeePerGas *big.Int
-}
-
-// GetGasSettings returns recommended gas settings
-func (c *Client) GetGasSettings(ctx context.Context) (*GasSettings, error) {
-	baseFee, err := c.ethClient.SuggestGasPrice(ctx)
+	// Get suggested gas price
+	gasPrice, err := c.L2Client.SuggestGasPrice(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get gas price: %w", err)
 	}
 
-	maxPriorityFeePerGas := big.NewInt(2000000000)
+	auth.GasPrice = gasPrice
+	auth.Context = ctx
 
-	maxFeePerGas := new(big.Int).Add(
-		new(big.Int).Mul(baseFee, big.NewInt(2)),
-		maxPriorityFeePerGas,
-	)
+	return auth, nil
+}
 
-	return &GasSettings{
-		GasPrice:             baseFee,
-		MaxFeePerGas:         maxFeePerGas,
-		MaxPriorityFeePerGas: maxPriorityFeePerGas,
-	}, nil
+// WaitForTransaction waits for transaction to be mined on L1
+func (c *Client) WaitForL1Transaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+	receipt, err := bind.WaitMined(ctx, c.L1Client, tx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to wait for transaction: %w", err)
+	}
+
+	if receipt.Status != types.ReceiptStatusSuccessful {
+		return receipt, fmt.Errorf("transaction failed with status %d", receipt.Status)
+	}
+
+	return receipt, nil
+}
+
+// WaitForL2Transaction waits for transaction to be mined on L2
+func (c *Client) WaitForL2Transaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+	receipt, err := bind.WaitMined(ctx, c.L2Client, tx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to wait for transaction: %w", err)
+	}
+
+	if receipt.Status != types.ReceiptStatusSuccessful {
+		return receipt, fmt.Errorf("transaction failed with status %d", receipt.Status)
+	}
+
+	return receipt, nil
+}
+
+// Close closes both clients
+func (c *Client) Close() {
+	if c.L1Client != nil {
+		c.L1Client.Close()
+	}
+	if c.L2Client != nil {
+		c.L2Client.Close()
+	}
+}
+
+// VerifySignature verifies EIP-712 signature
+func VerifySignature(message []byte, signature []byte, expectedAddress common.Address) (bool, error) {
+	if len(signature) != 65 {
+		return false, fmt.Errorf("invalid signature length: %d", len(signature))
+	}
+
+	// Transform yellow paper V from 27/28 to 0/1
+	if signature[64] >= 27 {
+		signature[64] -= 27
+	}
+
+	// Recover public key from signature
+	pubKey, err := crypto.SigToPub(message, signature)
+	if err != nil {
+		return false, fmt.Errorf("failed to recover public key: %w", err)
+	}
+
+	// Get address from public key
+	recoveredAddress := crypto.PubkeyToAddress(*pubKey)
+
+	// Compare addresses
+	return recoveredAddress == expectedAddress, nil
+}
+
+// ParseBigInt parses string to big.Int
+func ParseBigInt(s string) (*big.Int, error) {
+	value := new(big.Int)
+	_, ok := value.SetString(s, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid big int: %s", s)
+	}
+	return value, nil
 }

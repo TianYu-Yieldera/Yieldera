@@ -1,0 +1,35 @@
+{
+  "network": "arbitrumSepolia",
+  "chainId": "421614",
+  "timestamp": "2025-11-04T14:34:36.449Z",
+  "deployer": "0x3C07226A3f1488320426eB5FE9976f72E5712346",
+  "contracts": {
+    "TreasuryAssetFactory": "0x9e667a4ce092086C63c667e1Ea575B9Aa2a4762B",
+    "TreasuryPriceOracle": "0xB478ca7F5f03f2700BfC56613bb22546D6D10681",
+    "TreasuryYieldDistributor": "0x0BE14D40188FCB5924c36af46630faBD76698A80",
+    "TreasuryMarketplace": "0x90708d3663C3BE0DF3002dC293Bb06c45b67a334",
+    "USDC": "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"
+  },
+  "sampleAssets": [
+    {
+      "name": "T-Bill 13W",
+      "cusip": "912796TB1",
+      "term": "13W"
+    },
+    {
+      "name": "T-Note 2Y",
+      "cusip": "91282CHX6",
+      "term": "2Y"
+    },
+    {
+      "name": "T-Note 10Y",
+      "cusip": "912828YK4",
+      "term": "10Y"
+    },
+    {
+      "name": "T-Bond 30Y",
+      "cusip": "912810TT4",
+      "term": "30Y"
+    }
+  ]
+}

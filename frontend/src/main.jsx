@@ -14,6 +14,9 @@ import AdminAirdropView from "./views/AdminAirdropView";
 import OnchainAirdropView from "./views/OnchainAirdropView";
 import VaultView from "./views/VaultView";
 import RWAMarketView from "./views/RWAMarketView";
+import TreasuryMarketView from "./views/TreasuryMarketView";
+import TreasuryDetailView from "./views/TreasuryDetailView";
+import TreasuryHoldingsView from "./views/TreasuryHoldingsView";
 import StatusView from "./views/StatusView";
 import TutorialView from "./views/TutorialView";
 
@@ -34,6 +37,9 @@ function App(){
             <Route path='/admin/airdrop' element={<AdminAirdropView />} />
             <Route path='/vault' element={<VaultView />} />
             <Route path='/rwa-market' element={<RWAMarketView />} />
+            <Route path='/treasury' element={<TreasuryMarketView />} />
+            <Route path='/treasury/:assetId' element={<TreasuryDetailView />} />
+            <Route path='/treasury/holdings' element={<TreasuryHoldingsView />} />
             <Route path='/status' element={<StatusView />} />
             <Route path='/tutorial' element={<TutorialView />} />
           </Routes>

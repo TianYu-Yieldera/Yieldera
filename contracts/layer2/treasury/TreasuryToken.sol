@@ -83,7 +83,12 @@ contract TreasuryToken is ERC20, ERC20Burnable, AccessControl {
 
     /**
      * @notice Get asset metadata
-     * @return Asset information
+     * @return id Asset ID
+     * @return cusipId CUSIP identifier
+     * @return term Maturity term
+     * @return maturity Maturity date timestamp
+     * @return coupon Coupon rate in basis points
+     * @return supply Total token supply
      */
     function getAssetInfo() external view returns (
         uint256 id,

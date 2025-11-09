@@ -17,6 +17,7 @@ import (
 
   "github.com/gin-gonic/gin"
   "github.com/graphql-go/graphql"
+  "github.com/prometheus/client_golang/prometheus/promhttp"
   "loyalty-points-system/internal/config"
   "loyalty-points-system/internal/db"
   "loyalty-points-system/internal/airdrop"
@@ -41,6 +42,7 @@ func main() {
   r.Use(cors(cfg.APIAllowOrigin))
   r.Use(timeoutMiddleware(30 * time.Second))
   r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"ok": true}) })
+  r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
   // Authentication routes (public, no auth required)
   auth := r.Group("/auth")
@@ -261,6 +263,32 @@ func main() {
     bridgeAPI.POST("/l2-to-l1", handlers.InitiateBridgeL2ToL1(database))
     bridgeAPI.POST("/retry/:messageHash", handlers.RetryBridgeMessage(database))
     bridgeAPI.GET("/stats", handlers.GetBridgeStats(database))
+  }
+
+  // Treasury routes (US Treasury tokenization)
+  treasury := r.Group("/api/v1/treasury")
+  {
+    // Asset routes
+    treasury.GET("/assets", handlers.GetTreasuryAssets(database))
+    treasury.GET("/assets/:assetId", handlers.GetTreasuryAssetDetail(database))
+    treasury.GET("/assets/:assetId/price-history", handlers.GetTreasuryPriceHistory(database))
+    treasury.GET("/assets/:assetId/trades", handlers.GetTreasuryTradeHistory(database))
+
+    // User portfolio routes
+    treasury.GET("/user/:address/holdings", handlers.GetUserTreasuryHoldings(database))
+    treasury.GET("/user/:address/yield", handlers.GetUserTreasuryYield(database))
+
+    // Market routes
+    treasury.GET("/market/:assetId/orders", handlers.GetTreasuryMarketOrders(database))
+    treasury.POST("/market/order", handlers.CreateTreasuryOrder(database))
+    treasury.DELETE("/market/order/:orderId", handlers.CancelTreasuryOrder(database))
+
+    // Yield routes
+    treasury.POST("/yield/claim", handlers.ClaimTreasuryYield(database))
+    treasury.GET("/yield/distributions", handlers.GetYieldDistributions(database))
+
+    // Stats route
+    treasury.GET("/stats", handlers.GetTreasuryStats(database))
   }
 
   schema, err := buildSchema(database)
