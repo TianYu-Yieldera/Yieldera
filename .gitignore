@@ -48,3 +48,9 @@ temp/
 
 # Claude Code
 .claude/
+
+# Documentation (keep local only)
+docs/
+*.md
+!contracts/**/*.md
+!backend/**/*.md
