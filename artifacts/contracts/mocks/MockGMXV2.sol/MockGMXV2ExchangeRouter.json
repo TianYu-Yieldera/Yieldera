@@ -1,0 +1,121 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "MockGMXV2ExchangeRouter",
+  "sourceName": "contracts/mocks/MockGMXV2.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "orderKey",
+          "type": "bytes32"
+        }
+      ],
+      "name": "OrderCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "orderKey",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "OrderCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "cancelOrder",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address[]",
+              "name": "addresses",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "numbers",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint8",
+              "name": "orderType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "isLong",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "shouldUnwrapNativeToken",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IGMXV2ExchangeRouter.CreateOrderParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "createOrder",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "orderKey",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "orders",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b506102b0806100206000396000f3fe6080604052600436106100345760003560e01c80633de6812b146100395780637489ec231461005f5780639c3f1e9014610081575b600080fd5b61004c6100473660046101f8565b6100c1565b6040519081526020015b60405180910390f35b34801561006b57600080fd5b5061007f61007a36600461023a565b610164565b005b34801561008d57600080fd5b506100b161009c36600461023a565b60016020526000908152604090205460ff1681565b6040519015158152602001610056565b6000805481806100d083610253565b90915550506000546040516bffffffffffffffffffffffff193360601b166020820152603481019190915242605482015260740160408051601f1981840301815282825280516020918201206000818152600192839052928320805460ff19169092179091559250339183917ffe3abe4ac576af677b15551bc3727d347d2c7b3d0aa6e5d4ec1bed01e3f13d1691a3919050565b60008181526001602052604090205460ff166101b85760405162461bcd60e51b815260206004820152600f60248201526e13dc99195c881b9bdd08199bdd5b99608a1b604482015260640160405180910390fd5b600081815260016020526040808220805460ff191690555182917f5152abf959f6564662358c2e52b702259b78bac5ee7842a0f01937e670efcc7d91a250565b60006020828403121561020a57600080fd5b813567ffffffffffffffff81111561022157600080fd5b820160a0818503121561023357600080fd5b9392505050565b60006020828403121561024c57600080fd5b5035919050565b60006001820161027357634e487b7160e01b600052601160045260246000fd5b506001019056fea26469706673582212201fa426fe9a5ae298ce40286f4061e510ca974d722b42e4da58770b0c91248a3464736f6c63430008160033",
+  "deployedBytecode": "0x6080604052600436106100345760003560e01c80633de6812b146100395780637489ec231461005f5780639c3f1e9014610081575b600080fd5b61004c6100473660046101f8565b6100c1565b6040519081526020015b60405180910390f35b34801561006b57600080fd5b5061007f61007a36600461023a565b610164565b005b34801561008d57600080fd5b506100b161009c36600461023a565b60016020526000908152604090205460ff1681565b6040519015158152602001610056565b6000805481806100d083610253565b90915550506000546040516bffffffffffffffffffffffff193360601b166020820152603481019190915242605482015260740160408051601f1981840301815282825280516020918201206000818152600192839052928320805460ff19169092179091559250339183917ffe3abe4ac576af677b15551bc3727d347d2c7b3d0aa6e5d4ec1bed01e3f13d1691a3919050565b60008181526001602052604090205460ff166101b85760405162461bcd60e51b815260206004820152600f60248201526e13dc99195c881b9bdd08199bdd5b99608a1b604482015260640160405180910390fd5b600081815260016020526040808220805460ff191690555182917f5152abf959f6564662358c2e52b702259b78bac5ee7842a0f01937e670efcc7d91a250565b60006020828403121561020a57600080fd5b813567ffffffffffffffff81111561022157600080fd5b820160a0818503121561023357600080fd5b9392505050565b60006020828403121561024c57600080fd5b5035919050565b60006001820161027357634e487b7160e01b600052601160045260246000fd5b506001019056fea26469706673582212201fa426fe9a5ae298ce40286f4061e510ca974d722b42e4da58770b0c91248a3464736f6c63430008160033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

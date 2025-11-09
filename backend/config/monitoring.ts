@@ -16,10 +16,16 @@ export const MONITORING_CONFIG = {
     aaveAdapter: process.env.AAVE_ADAPTER_ADDRESS || '',
     compoundAdapter: process.env.COMPOUND_ADAPTER_ADDRESS || '',
 
+    // GMX V2 Adapter (新增)
+    gmxv2Adapter: process.env.GMXV2_ADAPTER_ADDRESS || '',
+
     // Treasury Contracts
     treasuryMarketplace: process.env.TREASURY_MARKETPLACE_ADDRESS || '0x90708d3663C3BE0DF3002dC293Bb06c45b67a334',
     treasuryAssetFactory: process.env.TREASURY_ASSET_FACTORY_ADDRESS || '0x9e667a4ce092086C63c667e1Ea575B9Aa2a4762B',
     treasuryYieldDistributor: process.env.TREASURY_YIELD_DISTRIBUTOR_ADDRESS || '0x0BE14D40188FCB5924c36af46630faBD76698A80',
+
+    // RWA Contracts
+    rwaYieldDistributor: process.env.RWA_YIELD_DISTRIBUTOR_ADDRESS || '',
   },
 
   // 风险阈值
@@ -34,10 +40,20 @@ export const MONITORING_CONFIG = {
     largeWithdrawal: 50, // ETH
     largeFlashLoan: 100, // ETH
 
+    // GMX V2 (新增)
+    leverageWarning: 30, // 杠杆警告线
+    leverageCritical: 40, // 杠杆危险线
+    largePositionUsd: 50000, // 大额仓位阈值 ($50k)
+
     // Treasury
     priceDeviationPercent: 0.05, // 5%
     volumeChangePercent: 0.3, // 30%
     lowLiquidity: 10000, // USD
+
+    // YieldDistributor
+    largeYieldDeposit: 100000, // $100,000
+    shortClaimPeriodDays: 7, // 7 days
+    lowClaimRate: 0.5, // 50%
   },
 
   // 告警配置
@@ -45,11 +61,16 @@ export const MONITORING_CONFIG = {
     slack: {
       enabled: process.env.SLACK_ENABLED === 'true',
       webhookUrl: process.env.SLACK_WEBHOOK_URL || '',
+      channelName: process.env.SLACK_CHANNEL || '#monitoring',
+      botName: process.env.SLACK_BOT_NAME || 'Loyalty Points Monitor',
+      minLevel: (process.env.SLACK_MIN_LEVEL || 'WARNING') as 'CRITICAL' | 'WARNING' | 'INFO',
     },
     email: {
       enabled: false,
       // 后续配置
     },
+    // 告警冷却时间 (防止重复告警)
+    cooldownMs: parseInt(process.env.ALERT_COOLDOWN_MS || '300000'), // 5分钟
   },
 
   // 数据库
@@ -73,6 +94,21 @@ export const MONITORING_CONFIG = {
     eventProcessingDelayMs: 5000,
     riskCalculationIntervalMs: 60000, // 1分钟
     statsReportIntervalMs: 300000, // 5分钟
+  },
+
+  // GMX 专用配置
+  gmx: {
+    monitoring: {
+      leverageWarning: 30,
+      leverageCritical: 40,
+      largePositionUsd: '50000',
+    },
+    advisorMode: {
+      enabled: true,
+      autoHedge: false,
+      requireUserConfirmation: true,
+      trackRecommendations: true,
+    },
   },
 };
 
