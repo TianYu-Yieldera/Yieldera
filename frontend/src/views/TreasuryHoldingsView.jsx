@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Wallet, TrendingUp, TrendingDown, DollarSign, Award } from 'lucide-react';
+import { Wallet, TrendingUp, DollarSign, Award, ArrowLeft } from 'lucide-react';
 import { useWallet } from '../web3/WalletContext';
 import treasuryService from '../services/treasuryService';
+import TechContainer from "../components/ui/TechContainer";
+import TechHeader from "../components/ui/TechHeader";
+import TechCard from "../components/ui/TechCard";
+import TechButton from "../components/ui/TechButton";
 
 export default function TreasuryHoldingsView() {
   const { account, isConnected, signer } = useWallet();
@@ -83,7 +87,6 @@ export default function TreasuryHoldingsView() {
     }
 
     try {
-      // Create EIP-712 typed data for signature
       const domain = {
         name: 'Treasury Yield Distributor',
         version: '1',
@@ -105,7 +108,6 @@ export default function TreasuryHoldingsView() {
         timestamp: Math.floor(Date.now() / 1000),
       };
 
-      // Sign the typed data
       const signature = await signer.signTypedData(domain, types, value);
 
       await treasuryService.claimYield({
@@ -115,7 +117,7 @@ export default function TreasuryHoldingsView() {
       });
 
       alert('Yield claimed successfully!');
-      fetchHoldings(); // Refresh after claim
+      fetchHoldings();
     } catch (err) {
       console.error('Claim yield error:', err);
       alert('Failed to claim yield: ' + err.message);
@@ -124,257 +126,203 @@ export default function TreasuryHoldingsView() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
-          <Wallet className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <TechContainer>
+        <div style={{ textAlign: 'center', padding: '100px 0' }}>
+          <div style={{
+            width: 80,
+            height: 80,
+            margin: '0 auto 24px',
+            borderRadius: '50%',
+            background: 'rgba(34, 211, 238, 0.15)',
+            border: '2px solid rgba(34, 211, 238, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Wallet style={{ width: 40, height: 40, color: 'rgb(34, 211, 238)' }} />
+          </div>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: 'white', marginBottom: 12 }}>
             Connect Your Wallet
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p style={{ color: 'rgba(203, 213, 225, 0.7)', marginBottom: 24, fontSize: 16 }}>
             Please connect your wallet to view your Treasury holdings
           </p>
         </div>
-      </div>
+      </TechContainer>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your holdings...</p>
+      <TechContainer>
+        <div style={{ textAlign: 'center', padding: '100px 0' }}>
+          <div style={{
+            width: 48,
+            height: 48,
+            margin: '0 auto',
+            border: '3px solid rgb(34, 211, 238)',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{ marginTop: 16, color: 'rgba(203, 213, 225, 0.8)', fontWeight: 500 }}>
+            Loading your holdings...
+          </p>
         </div>
-      </div>
+      </TechContainer>
     );
   }
 
   const totals = calculateTotals();
-  const isProfit = totals.totalGainLoss >= 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Treasury Holdings</h1>
-          <p className="mt-2 text-gray-600">
-            Track your Treasury portfolio and yield earnings
-          </p>
-        </div>
+    <TechContainer>
+      <div style={{ marginBottom: 24 }}>
+        <Link
+          to="/treasury"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            color: 'rgb(34, 211, 238)',
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 500,
+            transition: 'all 0.3s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.gap = '12px'}
+          onMouseLeave={(e) => e.currentTarget.style.gap = '8px'}
+        >
+          <ArrowLeft size={16} />
+          Back to Market
+        </Link>
+      </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <DollarSign className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Total Invested</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(totals.totalInvested)}
-                </p>
-              </div>
-            </div>
-          </div>
+      <TechHeader
+        icon={Wallet}
+        title="My Treasury Holdings"
+        subtitle="View and manage your US Treasury bond investments"
+      />
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <Wallet className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Current Value</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(totals.currentValue)}
-                </p>
-              </div>
-            </div>
-          </div>
+      {/* Summary Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 32 }}>
+        <TechCard
+          icon={DollarSign}
+          title="Total Invested"
+          value={formatCurrency(totals.totalInvested)}
+          subtitle="Principal amount"
+          iconColor="rgb(34, 211, 238)"
+        />
+        <TechCard
+          icon={TrendingUp}
+          title="Current Value"
+          value={formatCurrency(totals.currentValue)}
+          subtitle="Including accrued yield"
+          iconColor="rgb(59, 130, 246)"
+        />
+        <TechCard
+          icon={Award}
+          title="Total Yield"
+          value={formatCurrency(totals.totalYield)}
+          subtitle="Accrued interest"
+          iconColor="rgb(34, 197, 94)"
+        />
+        <TechCard
+          icon={TrendingUp}
+          title="Gain/Loss"
+          value={formatCurrency(totals.totalGainLoss)}
+          subtitle={totals.totalGainLoss >= 0 ? 'profit' : 'loss'}
+          iconColor={totals.totalGainLoss >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
+        />
+      </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              {isProfit ? (
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              ) : (
-                <TrendingDown className="h-8 w-8 text-red-600" />
-              )}
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Gain/Loss</p>
-                <p
-                  className={`text-2xl font-bold ${
-                    isProfit ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {isProfit ? '+' : ''}
-                  {formatCurrency(totals.totalGainLoss)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <Award className="h-8 w-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Accrued Yield</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(totals.totalYield)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Holdings Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Your Holdings</h2>
-          </div>
-
-          {holdings.length === 0 ? (
-            <div className="p-12 text-center">
-              <Wallet className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No Holdings Yet
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Start investing in US Treasury securities
-              </p>
-              <Link
-                to="/treasury"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-              >
-                Browse Treasury Market
+      {/* Holdings List */}
+      <TechCard>
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: 'white', margin: '0 0 20px 0' }}>
+          Your Holdings
+        </h2>
+        {holdings.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 48 }}>
+            <p style={{ color: 'rgba(203, 213, 225, 0.7)', fontSize: 16 }}>
+              No holdings found. Visit the{' '}
+              <Link to="/treasury" style={{ color: 'rgb(34, 211, 238)', textDecoration: 'none', fontWeight: 600 }}>
+                Treasury Market
               </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Asset
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tokens Held
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Avg Price
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Current Value
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Gain/Loss
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Accrued Yield
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {holdings.map((holding) => {
-                    const gainLoss =
-                      parseFloat(holding.current_value || 0) -
-                      parseFloat(holding.total_invested || 0);
-                    const isProfit = gainLoss >= 0;
-
-                    return (
-                      <tr key={holding.asset_id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {holding.treasury_type}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {holding.maturity_term} | {holding.cusip}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {parseFloat(holding.tokens_held).toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(holding.avg_purchase_price)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {formatCurrency(holding.current_value)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`text-sm font-medium ${
-                              isProfit ? 'text-green-600' : 'text-red-600'
-                            }`}
-                          >
-                            {isProfit ? '+' : ''}
-                            {formatCurrency(gainLoss)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(holding.accrued_interest)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                          <Link
-                            to={`/treasury/${holding.asset_id}`}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            Trade
-                          </Link>
-                          {parseFloat(holding.accrued_interest) > 0 && (
-                            <button
-                              onClick={() => handleClaimYield(holding.asset_id)}
-                              className="text-green-600 hover:text-green-900"
-                            >
-                              Claim
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Yield History */}
-        {yieldData && yieldData.distributions_count > 0 && (
-          <div className="mt-8 bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Yield Distribution History
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="space-y-3">
-                {yieldData.distributions.slice(0, 5).map((dist) => (
-                  <div
-                    key={dist.id}
-                    className="flex justify-between items-center p-4 border rounded hover:bg-gray-50"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {dist.treasury_type} - {dist.cusip}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {dist.distribution_type} on {dist.distribution_date}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-green-600">
-                        +{formatCurrency(dist.user_yield)}
-                      </p>
-                      <p className="text-sm text-gray-500">{dist.status}</p>
+              {' '}to start investing.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {holdings.map((holding, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: 24,
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  borderRadius: 12,
+                  border: '1px solid rgba(34, 211, 238, 0.2)',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 16 }}>
+                  <div>
+                    <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', marginBottom: 8 }}>
+                      {holding.asset_code}
+                    </h3>
+                    <div style={{ fontSize: 14, color: 'rgba(203, 213, 225, 0.7)' }}>
+                      {holding.treasury_type} • Maturity: {new Date(holding.maturity_date).toLocaleDateString()}
                     </div>
                   </div>
-                ))}
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 24, fontWeight: 700, color: 'rgb(34, 211, 238)' }}>
+                      {formatCurrency(holding.current_value)}
+                    </div>
+                    <div style={{ fontSize: 13, color: 'rgba(203, 213, 225, 0.6)' }}>
+                      Current Value
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, marginBottom: 16 }}>
+                  <div>
+                    <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)', marginBottom: 4 }}>Invested</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>{formatCurrency(holding.total_invested)}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)', marginBottom: 4 }}>Quantity</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>{holding.quantity || 0}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)', marginBottom: 4 }}>Accrued Yield</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'rgb(34, 197, 94)' }}>{formatCurrency(holding.accrued_interest)}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)', marginBottom: 4 }}>Current APY</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>{formatPercent(holding.current_yield)}</div>
+                  </div>
+                </div>
+
+                {parseFloat(holding.accrued_interest) > 0 && (
+                  <TechButton
+                    onClick={() => handleClaimYield(holding.asset_id)}
+                    variant="primary"
+                  >
+                    Claim Yield ({formatCurrency(holding.accrued_interest)})
+                  </TechButton>
+                )}
               </div>
-            </div>
+            ))}
           </div>
         )}
-      </div>
-    </div>
+      </TechCard>
+    </TechContainer>
   );
 }

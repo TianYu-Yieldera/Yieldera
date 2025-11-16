@@ -1,151 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Check, Home, Play } from 'lucide-react';
+import { Play, Home, Monitor, TrendingUp, Gem, Shield, Youtube, Video, ExternalLink, Check, BookOpen, Zap } from 'lucide-react';
 import { useDemoMode } from '../web3/DemoModeContext';
+import TechContainer from "../components/ui/TechContainer";
+import TechHeader from "../components/ui/TechHeader";
+import TechCard from "../components/ui/TechCard";
+import TechButton from "../components/ui/TechButton";
 
-// 视频配置 - 修改这里来更换视频
+// Video configuration - modify here to change video source
 const VIDEO_CONFIG = {
   type: 'placeholder', // 'youtube' | 'local' | 'placeholder'
-  youtubeId: '', // YouTube 视频 ID (例如: 'dQw4w9WgXcQ')
-  localPath: '/videos/tutorial.mp4', // 本地视频路径
-  posterImage: '/pointfi-logo-mark.svg' // 视频封面图
+  youtubeId: '', // YouTube video ID (example: 'dQw4w9WgXcQ')
+  localPath: '/videos/demo.mp4', // Local video path
+  posterImage: '/pointfi-logo-mark.svg' // Video poster image
 };
-
-// 视频播放器组件
-function VideoPlayer({ config }) {
-  const [showVideo, setShowVideo] = useState(true);
-
-  if (!showVideo) return null;
-
-  // YouTube 视频
-  if (config.type === 'youtube' && config.youtubeId) {
-    return (
-      <div style={{ marginBottom: '24px', position: 'relative' }}>
-        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.3)' }}>
-          <iframe
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-            src={`https://www.youtube.com/embed/${config.youtubeId}?rel=0&modestbranding=1`}
-            title="Yieldera Tutorial"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-        <button
-          onClick={() => setShowVideo(false)}
-          style={{
-            marginTop: '12px',
-            padding: '8px 16px',
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '6px',
-            color: '#9ca3af',
-            fontSize: '13px',
-            cursor: 'pointer',
-            width: '100%'
-          }}
-        >
-          隐藏视频
-        </button>
-      </div>
-    );
-  }
-
-  // 本地视频
-  if (config.type === 'local' && config.localPath) {
-    return (
-      <div style={{ marginBottom: '24px' }}>
-        <video
-          controls
-          poster={config.posterImage}
-          style={{ width: '100%', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.3)' }}
-        >
-          <source src={config.localPath} type="video/mp4" />
-          您的浏览器不支持视频播放
-        </video>
-        <button
-          onClick={() => setShowVideo(false)}
-          style={{
-            marginTop: '12px',
-            padding: '8px 16px',
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '6px',
-            color: '#9ca3af',
-            fontSize: '13px',
-            cursor: 'pointer',
-            width: '100%'
-          }}
-        >
-          隐藏视频
-        </button>
-      </div>
-    );
-  }
-
-  // 占位符 - 暂无视频
-  return (
-    <div style={{
-      marginBottom: '24px',
-      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-      borderRadius: '12px',
-      padding: '48px 32px',
-      textAlign: 'center',
-      border: '2px dashed rgba(255,255,255,0.1)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 70%)',
-        pointerEvents: 'none'
-      }} />
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{
-          width: '80px',
-          height: '80px',
-          margin: '0 auto 20px',
-          background: 'rgba(102, 126, 234, 0.2)',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '3px solid rgba(102, 126, 234, 0.3)'
-        }}>
-          <Play size={36} style={{ color: '#667eea', marginLeft: '4px' }} />
-        </div>
-        <h3 style={{ color: '#fff', fontSize: '20px', marginBottom: '12px', fontWeight: '600' }}>
-          📹 系统演示视频
-        </h3>
-        <p style={{ color: '#9ca3af', fontSize: '14px', lineHeight: '1.6', marginBottom: '20px', maxWidth: '500px', margin: '0 auto 20px' }}>
-          我们正在为您准备专业的系统演示视频！<br/>
-          视频将展示完整的使用流程，包括理财金库、RWA 资产购买等核心功能。
-        </p>
-        <div style={{
-          display: 'inline-block',
-          padding: '10px 20px',
-          background: 'rgba(102, 126, 234, 0.15)',
-          borderRadius: '8px',
-          border: '1px solid rgba(102, 126, 234, 0.3)',
-          color: '#a5b4fc',
-          fontSize: '13px'
-        }}>
-          <strong>预计时长:</strong> 6-8 分钟 | <strong>语言:</strong> 英文配音 + 中文字幕
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function TutorialView() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState([]);
-  const { demoMode, demoAddress, enableDemoMode, disableDemoMode } = useDemoMode();
+  const { demoMode, enableDemoMode, disableDemoMode } = useDemoMode();
+  const [videoExpanded, setVideoExpanded] = useState(true);
 
   const handleToggleDemoMode = async () => {
     try {
@@ -156,389 +29,408 @@ export default function TutorialView() {
       }
     } catch (err) {
       console.error('Failed to toggle demo mode', err);
-      alert('演示模式初始化失败，请稍后再试');
+      alert('Failed to initialize demo mode, please try again later');
     }
   };
-
-  const handleNext = () => {
-    if (currentStep < tutorialSteps.length - 1) {
-      setCompletedSteps([...completedSteps, currentStep]);
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleComplete();
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleComplete = () => {
-    localStorage.setItem('pointfi_tutorial_completed', 'true');
-    navigate('/dashboard');
-  };
-
-  const handleClose = () => {
-    navigate(-1); // 返回上一页
-  };
-
-  const tutorialSteps = [
-    {
-      id: 'welcome',
-      title: '🎉 欢迎来到 Yieldera！',
-      description: '观看演示视频或阅读下方指南了解系统',
-      content: (
-        <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
-          {/* 视频播放器 */}
-          <VideoPlayer config={VIDEO_CONFIG} />
-
-          <div style={{
-            background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white'
-          }}>
-            <h3 style={{fontSize: '20px', fontWeight: '700', marginBottom: '16px'}}>🚀 你可以做什么：</h3>
-            <ul style={{display: 'flex', flexDirection: 'column', gap: '8px', listStyle: 'none', padding: 0, margin: 0}}>
-              {[
-                '💰 存入积分赚取被动收益',
-                '🪙 铸造 LUSD 稳定币（1:1锚定美元）',
-                '🏆 访问 Uniswap、Aave 等真实 DeFi 协议'
-              ].map((text, i) => (
-                <li key={i} style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  <Check size={20} />
-                  <span>{text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div style={{
-            background: '#FEF3C7',
-            border: '2px solid #FCD34D',
-            padding: '20px',
-            borderRadius: '12px'
-          }}>
-            <p style={{color: '#92400E', marginBottom: '12px', fontSize: '15px'}}>
-              <strong>💡 推荐：启用演示模式</strong>
-              <br/>
-              <span style={{fontSize: '14px'}}>使用虚拟代币测试系统，无需真实交易！</span>
-            </p>
-            <button
-              onClick={handleToggleDemoMode}
-              style={{
-                padding: '12px 20px',
-                borderRadius: '10px',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer',
-                background: demoMode ? '#10B981' : '#3B82F6',
-                color: 'white',
-                fontSize: '15px',
-                width: '100%',
-                transition: 'all 0.2s',
-                boxShadow: demoMode ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(59, 130, 246, 0.3)'
-              }}
-            >
-              {demoMode ? '✅ 演示模式已激活 - 10,000 测试积分' : '🎮 点击启用演示模式'}
-            </button>
-            {demoAddress && (
-              <p style={{fontSize: '13px', color: '#6B7280', marginTop: '12px', textAlign: 'center'}}>
-                演示钱包: <code style={{background: '#F3F4F6', padding: '2px 8px', borderRadius: '4px'}}>{demoAddress.slice(0, 6)}...{demoAddress.slice(-4)}</code>
-              </p>
-            )}
-          </div>
-        </div>
-      ),
-      action: '下一步'
-    },
-    {
-      id: 'explore',
-      title: '📊 探索功能',
-      description: '看看主页上的7大功能模块',
-      content: (
-        <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-          <div style={{background: '#EEF2FF', padding: '20px', borderRadius: '12px', border: '1px solid #C7D2FE'}}>
-            <h4 style={{margin: '0 0 12px 0', fontSize: '18px', color: '#4338CA'}}>🎯 关键功能区域</h4>
-            <div style={{display: 'grid', gap: '12px'}}>
-              {[
-                { icon: '📈', name: '概览 Dashboard', desc: '查看你的资产总览、收益和积分' },
-                { icon: '🏊', name: 'DeFi 池', desc: '存入资金到 Uniswap、Aave 等协议赚取高收益' },
-                { icon: '🏆', name: '排行榜', desc: '查看积分排名，与其他用户竞争' }
-              ].map((item, i) => (
-                <div key={i} style={{
-                  background: 'white',
-                  padding: '16px',
-                  borderRadius: '10px',
-                  border: '1px solid #E0E7FF',
-                  display: 'flex',
-                  gap: '12px',
-                  alignItems: 'start'
-                }}>
-                  <span style={{fontSize: '24px'}}>{item.icon}</span>
-                  <div>
-                    <div style={{fontWeight: '700', marginBottom: '4px'}}>{item.name}</div>
-                    <div style={{fontSize: '13px', color: '#6B7280'}}>{item.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{background: '#D1FAE5', padding: '16px', borderRadius: '10px', border: '1px solid #6EE7B7'}}>
-            <p style={{margin: 0, color: '#065F46', fontSize: '14px'}}>
-              <strong>💡 提示：</strong> 关闭这个教程后，点击顶部菜单栏的任意功能开始探索！
-            </p>
-          </div>
-        </div>
-      ),
-      action: '下一步'
-    },
-    {
-      id: 'start',
-      title: '🚀 开始使用',
-      description: '你已经准备好了！',
-      content: (
-        <div style={{display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center'}}>
-          <div style={{
-            background: 'linear-gradient(135deg, #10B981, #059669)',
-            padding: '32px',
-            borderRadius: '16px',
-            color: 'white',
-            textAlign: 'center',
-            width: '100%'
-          }}>
-            <div style={{fontSize: '60px', marginBottom: '16px'}}>🎊</div>
-            <h3 style={{fontSize: '24px', fontWeight: '700', margin: '0 0 12px 0'}}>准备就绪！</h3>
-            <p style={{opacity: 0.95, margin: 0, fontSize: '15px'}}>
-              {demoMode ? '你已启用演示模式，可以安全地探索所有功能' : '连接钱包后即可开始使用真实资产'}
-            </p>
-          </div>
-
-          <div style={{background: '#F9FAFB', padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB', width: '100%'}}>
-            <h4 style={{margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700'}}>📝 快速开始指南：</h4>
-            <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-              {[
-                { num: '1', text: '点击顶部菜单栏的"概览"查看你的资产', highlight: false },
-                { num: '2', text: '访问"DeFi 池"开始赚取收益', highlight: true },
-                { num: '3', text: '在"排行榜"查看你的排名' }
-              ].map((item, i) => (
-                <div key={i} style={{
-                  display: 'flex',
-                  gap: '12px',
-                  alignItems: 'center',
-                  padding: '12px',
-                  background: item.highlight ? '#EFF6FF' : 'white',
-                  borderRadius: '8px',
-                  border: item.highlight ? '2px solid #3B82F6' : '1px solid #E5E7EB'
-                }}>
-                  <div style={{
-                    background: item.highlight ? '#3B82F6' : '#6B7280',
-                    color: 'white',
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: '700',
-                    fontSize: '14px',
-                    flexShrink: 0
-                  }}>{item.num}</div>
-                  <span style={{fontSize: '14px', color: '#374151'}}>{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{background: '#DBEAFE', padding: '16px', borderRadius: '10px', border: '1px solid #93C5FD', width: '100%'}}>
-            <p style={{margin: 0, color: '#1E40AF', fontSize: '14px', textAlign: 'center'}}>
-              <strong>🎉 专业提示：</strong> 随时点击右上角的 <strong>❓ 帮助按钮</strong> 重新查看教程
-            </p>
-          </div>
-        </div>
-      ),
-      action: '开始探索'
-    }
-  ];
-
-  // Demo mode state is now managed by DemoModeContext
-
-  const currentStepData = tutorialSteps[currentStep];
-  const progress = ((currentStep + 1) / tutorialSteps.length) * 100;
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '40px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '20px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-        maxWidth: '680px',
-        width: '100%',
-        maxHeight: '90vh',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
-      }}>
-        {/* Header */}
-        <div style={{
-          background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%)',
-          padding: '28px 32px',
-          color: 'white'
-        }}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px'}}>
-            <h2 style={{fontSize: '28px', fontWeight: '700', margin: 0, lineHeight: 1.2}}>{currentStepData.title}</h2>
-            <button
-              onClick={handleClose}
-              className="btn"
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                color: 'white',
-                cursor: 'pointer',
-                padding: '8px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                borderRadius: '8px',
-                transition: 'all 0.2s',
-                fontSize: '14px'
-              }}
-            >
-              <Home size={16} />
-              返回
-            </button>
-          </div>
-          <p style={{opacity: 0.95, fontSize: '15px', margin: 0}}>{currentStepData.description}</p>
+    <TechContainer>
+      <TechHeader
+        icon={BookOpen}
+        title="Platform Demo & Quick Start"
+        subtitle="Watch the demo video to understand Yieldera's core features, or enable demo mode to start exploring"
+      >
+        <TechButton
+          onClick={() => navigate(-1)}
+          variant="secondary"
+          icon={Home}
+        >
+          Back to Home
+        </TechButton>
+      </TechHeader>
 
-          {/* Progress Bar */}
-          <div style={{marginTop: '20px'}}>
-            <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px', opacity: 0.9}}>
-              <span>进度</span>
-              <span>{currentStep + 1} / {tutorialSteps.length}</span>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+        {/* Left Column - Video Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Main Video Player */}
+          <TechCard>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: 'white', margin: 0 }}>
+                Yieldera Platform Demo
+              </h2>
+              {videoExpanded && (
+                <button
+                  onClick={() => setVideoExpanded(false)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    border: '1px solid rgba(34, 211, 238, 0.3)',
+                    borderRadius: 6,
+                    fontSize: 13,
+                    color: 'rgba(203, 213, 225, 0.8)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)';
+                    e.currentTarget.style.color = 'rgb(34, 211, 238)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)';
+                    e.currentTarget.style.color = 'rgba(203, 213, 225, 0.8)';
+                  }}
+                >
+                  Collapse Video
+                </button>
+              )}
             </div>
-            <div style={{
-              width: '100%',
-              background: 'rgba(255, 255, 255, 0.25)',
-              borderRadius: '10px',
-              height: '6px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                background: 'white',
-                borderRadius: '10px',
-                height: '100%',
-                width: `${progress}%`,
-                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 0 8px rgba(255, 255, 255, 0.5)'
-              }} />
-            </div>
-          </div>
-        </div>
 
-        {/* Content */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '32px'
-        }}>
-          {currentStepData.content}
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          borderTop: '1px solid #E5E7EB',
-          padding: '24px 32px',
-          background: '#F9FAFB',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '16px'
-        }}>
-          <button
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-            className="btn"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '12px 24px',
-              borderRadius: '10px',
-              fontWeight: '600',
-              fontSize: '15px',
-              border: 'none',
-              cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
-              background: currentStep === 0 ? '#E5E7EB' : 'white',
-              color: currentStep === 0 ? '#9CA3AF' : '#374151',
-              transition: 'all 0.2s',
-              boxShadow: currentStep === 0 ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.1)'
-            }}
-          >
-            <ChevronLeft size={18} />
-            上一步
-          </button>
-
-          <div style={{display: 'flex', gap: '8px'}}>
-            {tutorialSteps.map((_, index) => (
-              <div
-                key={index}
-                style={{
-                  width: index === currentStep ? '32px' : '8px',
-                  height: '8px',
-                  borderRadius: '10px',
-                  background: index === currentStep ? '#6366F1' : completedSteps.includes(index) ? '#10B981' : '#D1D5DB',
-                  transition: 'all 0.3s ease',
-                  boxShadow: index === currentStep ? '0 0 8px rgba(99, 102, 241, 0.5)' : 'none'
-                }}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={handleNext}
-            className="btn"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 28px',
-              background: currentStep === tutorialSteps.length - 1
-                ? 'linear-gradient(135deg, #10B981, #059669)'
-                : 'linear-gradient(135deg, #3B82F6, #6366F1)',
-              color: 'white',
-              borderRadius: '10px',
-              fontWeight: '600',
-              fontSize: '15px',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)'
-            }}
-          >
-            {currentStep === tutorialSteps.length - 1 ? (
+            {videoExpanded ? (
               <>
-                <Check size={20} />
-                {currentStepData.action}
+                {/* YouTube Video */}
+                {VIDEO_CONFIG.type === 'youtube' && VIDEO_CONFIG.youtubeId && (
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(34, 211, 238, 0.3)' }}>
+                    <iframe
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                      src={`https://www.youtube.com/embed/${VIDEO_CONFIG.youtubeId}?rel=0&modestbranding=1`}
+                      title="Yieldera Demo"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+
+                {/* Local Video */}
+                {VIDEO_CONFIG.type === 'local' && VIDEO_CONFIG.localPath && (
+                  <video
+                    controls
+                    poster={VIDEO_CONFIG.posterImage}
+                    style={{ width: '100%', borderRadius: 12, border: '1px solid rgba(34, 211, 238, 0.3)' }}
+                  >
+                    <source src={VIDEO_CONFIG.localPath} type="video/mp4" />
+                    Your browser does not support video playback
+                  </video>
+                )}
+
+                {/* Placeholder */}
+                {VIDEO_CONFIG.type === 'placeholder' && (
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)',
+                    borderRadius: 12,
+                    padding: '80px 32px',
+                    textAlign: 'center',
+                    border: '2px dashed rgba(34, 211, 238, 0.3)',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      width: 120,
+                      height: 120,
+                      margin: '0 auto 24px',
+                      background: 'rgba(34, 211, 238, 0.15)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '4px solid rgba(34, 211, 238, 0.4)',
+                      boxShadow: '0 8px 24px rgba(34, 211, 238, 0.3)'
+                    }}>
+                      <Play size={48} style={{ color: 'rgb(34, 211, 238)', marginLeft: 6 }} />
+                    </div>
+                    <h3 style={{ color: 'rgb(34, 211, 238)', fontSize: 24, marginBottom: 12, fontWeight: 700, textShadow: '0 0 20px rgba(34, 211, 238, 0.5)' }}>
+                      Demo Video Coming Soon
+                    </h3>
+                    <p style={{ color: 'rgba(203, 213, 225, 0.8)', fontSize: 16, lineHeight: 1.6, marginBottom: 24, maxWidth: 500, margin: '0 auto 24px' }}>
+                      We're creating a professional system demo video!<br/>
+                      Showcasing DeFi yield optimization, US Treasury bonds, and AI risk management.
+                    </p>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 24px',
+                      background: 'rgba(15, 23, 42, 0.5)',
+                      borderRadius: 8,
+                      border: '1px solid rgba(34, 211, 238, 0.3)'
+                    }}>
+                      <div style={{ display: 'flex', gap: 16, fontSize: 14, color: 'rgba(203, 213, 225, 0.7)' }}>
+                        <span><strong style={{ color: 'rgb(34, 211, 238)' }}>Duration:</strong> 5-8 min</span>
+                        <span style={{ color: 'rgba(100, 116, 139, 0.5)' }}>|</span>
+                        <span><strong style={{ color: 'rgb(34, 211, 238)' }}>Language:</strong> English</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Video Info */}
+                <div style={{
+                  marginTop: 20,
+                  padding: 20,
+                  background: 'rgba(34, 211, 238, 0.1)',
+                  borderRadius: 8,
+                  border: '1px solid rgba(34, 211, 238, 0.3)'
+                }}>
+                  <h4 style={{ fontSize: 15, fontWeight: 600, color: 'rgb(34, 211, 238)', margin: '0 0 12px 0' }}>
+                    Video Content Overview
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {[
+                      'Product Positioning & Core Value',
+                      'DeFi Yield Aggregation Demo',
+                      'US Treasury Bond Investment Flow',
+                      'AI Smart Risk Management System',
+                      'Complete User Journey Walkthrough'
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'rgba(203, 213, 225, 0.8)' }}>
+                        <Check size={16} style={{ color: 'rgb(34, 197, 94)', flexShrink: 0 }} />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </>
             ) : (
-              <>
-                {currentStepData.action}
-                <ChevronRight size={20} />
-              </>
+              <button
+                onClick={() => setVideoExpanded(true)}
+                style={{
+                  width: '100%',
+                  padding: '48px 32px',
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  border: '2px dashed rgba(34, 211, 238, 0.3)',
+                  borderRadius: 12,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 12,
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)';
+                  e.currentTarget.style.background = 'rgba(15, 23, 42, 0.7)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)';
+                  e.currentTarget.style.background = 'rgba(15, 23, 42, 0.5)';
+                }}
+              >
+                <Play size={32} style={{ color: 'rgb(34, 211, 238)' }} />
+                <span style={{ fontSize: 15, color: 'rgba(203, 213, 225, 0.8)' }}>Click to expand video</span>
+              </button>
             )}
-          </button>
+          </TechCard>
+
+          {/* Video Links */}
+          <TechCard>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: '0 0 16px 0' }}>
+              Related Links
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <a
+                href="#"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: 16,
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  border: '1px solid rgba(34, 211, 238, 0.2)',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: 'rgba(203, 213, 225, 0.8)',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+                  e.currentTarget.style.background = 'rgba(15, 23, 42, 0.5)';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <Youtube size={20} style={{ color: 'rgb(239, 68, 68)' }} />
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: 'white' }}>YouTube Video</div>
+                    <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)' }}>HD quality | Subtitles available</div>
+                  </div>
+                </div>
+                <ExternalLink size={16} />
+              </a>
+              <a
+                href="#"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: 16,
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  border: '1px solid rgba(34, 211, 238, 0.2)',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: 'rgba(203, 213, 225, 0.8)',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+                  e.currentTarget.style.background = 'rgba(15, 23, 42, 0.5)';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <Video size={20} style={{ color: 'rgb(59, 130, 246)' }} />
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: 'white' }}>Documentation</div>
+                    <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)' }}>Technical documentation | PDF</div>
+                  </div>
+                </div>
+                <ExternalLink size={16} />
+              </a>
+            </div>
+          </TechCard>
+        </div>
+
+        {/* Right Column - Quick Start */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Demo Mode Card */}
+          <TechCard style={{
+            background: demoMode
+              ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%)'
+              : 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+            border: demoMode ? '2px solid rgba(34, 197, 94, 0.5)' : '1px solid rgba(34, 211, 238, 0.2)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                background: demoMode ? 'rgb(34, 197, 94)' : 'rgb(34, 211, 238)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: demoMode ? '0 0 20px rgba(34, 197, 94, 0.5)' : '0 0 20px rgba(34, 211, 238, 0.5)'
+              }}>
+                <Monitor size={24} color="white" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: 'white', margin: 0 }}>
+                  {demoMode ? 'Demo Mode Enabled' : 'Enable Demo Mode'}
+                </h3>
+                <p style={{ fontSize: 13, color: 'rgba(203, 213, 225, 0.7)', margin: '4px 0 0 0' }}>
+                  {demoMode ? '10,000 test tokens available' : 'Test safely with virtual tokens'}
+                </p>
+              </div>
+            </div>
+
+            {demoMode && (
+              <div style={{
+                padding: 16,
+                background: 'rgba(34, 197, 94, 0.1)',
+                borderRadius: 8,
+                marginBottom: 16,
+                border: '1px solid rgba(34, 197, 94, 0.3)'
+              }}>
+                <div style={{ fontSize: 13, color: 'rgb(34, 197, 94)', fontWeight: 600, marginBottom: 8 }}>
+                  You can safely:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {[
+                    'Deposit test tokens into DeFi pools',
+                    'Purchase virtual US Treasury bonds',
+                    'View AI risk assessments'
+                  ].map((text, i) => (
+                    <div key={i} style={{ fontSize: 13, color: 'rgba(203, 213, 225, 0.8)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Check size={14} style={{ color: 'rgb(34, 197, 94)' }} />
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <TechButton
+              onClick={handleToggleDemoMode}
+              variant={demoMode ? 'secondary' : 'primary'}
+              fullWidth
+              icon={demoMode ? null : Zap}
+            >
+              {demoMode ? 'Exit Demo Mode' : 'Enable Now'}
+            </TechButton>
+          </TechCard>
+
+          {/* Quick Start Guide */}
+          <TechCard>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: '0 0 20px 0' }}>
+              Quick Start
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {[
+                { icon: TrendingUp, title: 'Yield Vault', desc: 'Auto-optimize DeFi returns', path: '/vault', color: 'rgb(34, 211, 238)' },
+                { icon: Gem, title: 'Treasury Bonds', desc: 'Stable RWA investments', path: '/treasury', color: 'rgb(59, 130, 246)' },
+                { icon: Shield, title: 'AI Risk Control', desc: 'View risk assessment reports', path: '/dashboard', color: 'rgb(34, 197, 94)' }
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => navigate(item.path)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: 16,
+                      background: 'rgba(15, 23, 42, 0.5)',
+                      border: '1px solid rgba(34, 211, 238, 0.2)',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.3s',
+                      width: '100%'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = item.color;
+                      e.currentTarget.style.transform = 'translateX(4px)';
+                      e.currentTarget.style.boxShadow = `0 4px 12px ${item.color}40`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 8,
+                      background: item.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      flexShrink: 0,
+                      boxShadow: `0 0 15px ${item.color}60`
+                    }}>
+                      <Icon size={20} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: 2 }}>
+                        {item.title}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)' }}>
+                        {item.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </TechCard>
         </div>
       </div>
-    </div>
+    </TechContainer>
   );
 }

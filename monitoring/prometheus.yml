@@ -1,0 +1,83 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  # API Service Metrics
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:8080']
+        labels:
+          service: 'api'
+
+  # AI Risk Engine Metrics
+  - job_name: 'ai-risk'
+    static_configs:
+      - targets: ['ai-risk:8084']
+        labels:
+          service: 'ai-risk'
+
+  # Vault Service Metrics
+  - job_name: 'vault'
+    static_configs:
+      - targets: ['vault:8081']
+        labels:
+          service: 'vault'
+
+  # RWA Service Metrics
+  - job_name: 'rwa'
+    static_configs:
+      - targets: ['rwa:8082']
+        labels:
+          service: 'rwa'
+
+  # Oracle Service Metrics
+  - job_name: 'oracle'
+    static_configs:
+      - targets: ['oracle:8083']
+        labels:
+          service: 'oracle'
+
+  # Treasury Oracle Metrics
+  - job_name: 'treasury-oracle'
+    static_configs:
+      - targets: ['treasury-oracle:8085']
+        labels:
+          service: 'treasury-oracle'
+
+  # PostgreSQL Metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgres'
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+
+  # Docker Container Metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'cadvisor'
+
+  # Prometheus Self-Monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
