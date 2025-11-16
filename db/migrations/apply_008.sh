@@ -29,8 +29,9 @@ echo ""
 # Database connection settings (read from env or use defaults)
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
-DB_NAME="${DB_NAME:-yieldera}"
-DB_USER="${DB_USER:-postgres}"
+DB_NAME="${DB_NAME:-loyalty_db}"
+DB_USER="${DB_USER:-loyalty_user}"
+export PGPASSWORD="${DB_PASSWORD:-loyalty_pass}"
 
 echo -e "${YELLOW}Database Configuration:${NC}"
 echo "  Host: $DB_HOST"
@@ -112,12 +113,15 @@ echo "  - Data loss: None (backward compatible)"
 echo "  - Breaking changes: None"
 echo ""
 
-# Ask for confirmation
-read -p "Continue with migration? (yes/no): " CONFIRM
-
-if [ "$CONFIRM" != "yes" ]; then
-    echo -e "${YELLOW}Migration cancelled by user${NC}"
-    exit 0
+# Auto-confirm if AUTO_CONFIRM is set, otherwise ask
+if [ "${AUTO_CONFIRM}" != "true" ]; then
+    read -p "Continue with migration? (yes/no): " CONFIRM
+    if [ "$CONFIRM" != "yes" ]; then
+        echo -e "${YELLOW}Migration cancelled by user${NC}"
+        exit 0
+    fi
+else
+    echo "Auto-confirming migration (AUTO_CONFIRM=true)"
 fi
 
 echo ""

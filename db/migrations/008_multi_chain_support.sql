@@ -199,12 +199,12 @@ CREATE INDEX idx_vault_positions_chain_user ON vault_positions(chain_id, user_ad
 CREATE INDEX idx_vault_positions_chain_protocol ON vault_positions(chain_id, protocol);
 CREATE INDEX idx_vault_positions_chain_active ON vault_positions(chain_id, active) WHERE active = true;
 
--- Treasury holdings
-CREATE INDEX idx_treasury_chain_user ON treasury_holdings(chain_id, user_address);
+-- Treasury holdings (uses user_id, not user_address)
+CREATE INDEX idx_treasury_chain_user ON treasury_holdings(chain_id, user_id);
 CREATE INDEX idx_treasury_chain_asset ON treasury_holdings(chain_id, asset_type);
 
--- Price history
-CREATE INDEX idx_price_history_chain_asset ON price_history(chain_id, asset_symbol, timestamp DESC);
+-- Price history (uses 'asset' and 'time', not 'asset_symbol' and 'timestamp')
+CREATE INDEX IF NOT EXISTS idx_price_history_chain_asset ON price_history(chain_id, asset, time DESC);
 
 -- Liquidation events
 CREATE INDEX idx_liquidation_chain_time ON liquidation_events(chain_id, timestamp DESC);
