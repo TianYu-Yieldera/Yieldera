@@ -1,0 +1,180 @@
+groups:
+  - name: service_alerts
+    interval: 30s
+    rules:
+      # API Service Alerts
+      - alert: APIServiceDown
+        expr: up{service="api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "API Service is down"
+          description: "API service has been down for more than 2 minutes"
+
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{service="api"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "API high latency detected"
+          description: "99th percentile latency is above 1 second for 5 minutes"
+
+      # AI Risk Engine Alerts
+      - alert: AIServiceDown
+        expr: up{service="ai-risk"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: ai-risk
+        annotations:
+          summary: "AI Risk Engine is down"
+          description: "AI Risk Engine has been down for more than 2 minutes"
+
+      - alert: AIModelAccuracyDrop
+        expr: ai_model_accuracy < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: ai-risk
+        annotations:
+          summary: "AI model accuracy dropped below 80%"
+          description: "Model accuracy is {{ $value }}%, below threshold"
+
+      - alert: AIHighPredictionLatency
+        expr: ai_prediction_latency_seconds > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          service: ai-risk
+        annotations:
+          summary: "AI prediction latency high"
+          description: "Prediction latency is above 500ms for 5 minutes"
+
+      # Database Alerts
+      - alert: PostgreSQLDown
+        expr: up{service="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is unreachable"
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL high connection usage"
+          description: "Database connections are above 80% of maximum"
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_statements_mean_exec_time[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: postgres
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "Average query execution time is above 1 second"
+
+      # System Alerts
+      - alert: HighCPUUsage
+        expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for 5 minutes on {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% on {{ $labels.instance }}"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Low disk space"
+          description: "Less than 10% disk space remaining on {{ $labels.instance }}"
+
+      # Container Alerts
+      - alert: ContainerDown
+        expr: up{job="cadvisor"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          service: container
+        annotations:
+          summary: "Container monitoring is down"
+          description: "cAdvisor is not responding"
+
+      - alert: ContainerHighMemory
+        expr: (sum(container_memory_usage_bytes) BY (name) / sum(container_spec_memory_limit_bytes) BY (name)) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: container
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} memory usage is above 90%"
+
+      # Treasury/RWA Specific Alerts
+      - alert: TreasuryOracleDown
+        expr: up{service="treasury-oracle"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: treasury
+        annotations:
+          summary: "Treasury Oracle is down"
+          description: "Treasury price oracle has been down for 5 minutes"
+
+      - alert: TreasuryPriceStale
+        expr: time() - treasury_last_update_timestamp > 3600
+        for: 10m
+        labels:
+          severity: warning
+          service: treasury
+        annotations:
+          summary: "Treasury prices are stale"
+          description: "Treasury prices haven't been updated for over 1 hour"
+
+      # DeFi Protocol Alerts
+      - alert: LiquidationRiskHigh
+        expr: defi_liquidation_risk_score > 80
+        for: 5m
+        labels:
+          severity: critical
+          service: defi
+        annotations:
+          summary: "High liquidation risk detected"
+          description: "Liquidation risk score is {{ $value }}% for user {{ $labels.user }}"
+
+      - alert: ProtocolTVLDrop
+        expr: (defi_protocol_tvl - defi_protocol_tvl offset 1h) / defi_protocol_tvl offset 1h < -0.2
+        for: 10m
+        labels:
+          severity: warning
+          service: defi
+        annotations:
+          summary: "Protocol TVL dropped significantly"
+          description: "{{ $labels.protocol }} TVL dropped by more than 20% in the last hour"

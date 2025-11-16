@@ -62,6 +62,7 @@ type Config struct {
 	APIAllowOrigin string
 
 	// Service URLs
+	AIServiceURL     string
 	VaultServiceURL  string
 	RWAServiceURL    string
 	OracleServiceURL string
@@ -128,6 +129,7 @@ func LoadConfig() (*Config, error) {
 		APIAllowOrigin: getEnvOrDefault("API_ALLOW_ORIGIN", "*"),
 
 		// Service URLs
+		AIServiceURL:     getEnvOrDefault("AI_SERVICE_URL", "http://ai-service:8084"),
 		VaultServiceURL:  getEnvOrDefault("VAULT_SERVICE_URL", "http://vault:8081"),
 		RWAServiceURL:    getEnvOrDefault("RWA_SERVICE_URL", "http://rwa:8082"),
 		OracleServiceURL: getEnvOrDefault("ORACLE_SERVICE_URL", "http://oracle:8083"),

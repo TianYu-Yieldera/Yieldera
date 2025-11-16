@@ -54,3 +54,23 @@ docs/
 *.md
 !contracts/**/*.md
 !backend/**/*.md
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+!frontend/public/pointfi-logo-mark.svg
+
+# Artifacts and build outputs
+artifacts/
+bin/
+cmd
+
+# Database backups
+db/backup*.sql
+
+# Test and script files (temporary)
+*.sh
+!scripts/*.sh

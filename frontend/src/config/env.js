@@ -7,7 +7,7 @@ export const config = {
   // API Configuration
   api: {
     baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8080',
-    timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 30000,
+    timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000, // Reduced from 30s to 10s
     graphqlUrl: import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:8080/graphql',
   },
 

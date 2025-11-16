@@ -1,0 +1,156 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "yieldera-main",
+    "title": "Yieldera Platform Monitoring",
+    "tags": ["yieldera", "defi", "rwa", "ai"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "API Request Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{service=\"api\"}[5m])",
+            "legendFormat": "{{method}} {{path}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "API Response Time (p99)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{service=\"api\"}[5m]))",
+            "legendFormat": "p99 latency"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "graph",
+        "title": "AI Model Performance",
+        "targets": [
+          {
+            "expr": "ai_model_accuracy",
+            "legendFormat": "Model Accuracy"
+          },
+          {
+            "expr": "ai_prediction_latency_seconds",
+            "legendFormat": "Prediction Latency"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "graph",
+        "title": "Risk Scores Distribution",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, ai_risk_score_bucket)",
+            "legendFormat": "Median Risk Score"
+          },
+          {
+            "expr": "histogram_quantile(0.95, ai_risk_score_bucket)",
+            "legendFormat": "95th Percentile"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "title": "Treasury Yields",
+        "targets": [
+          {
+            "expr": "treasury_yield_tbill",
+            "legendFormat": "T-Bills"
+          },
+          {
+            "expr": "treasury_yield_tnote",
+            "legendFormat": "T-Notes"
+          },
+          {
+            "expr": "treasury_yield_tbond",
+            "legendFormat": "T-Bonds"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "title": "DeFi Protocol TVL",
+        "targets": [
+          {
+            "expr": "defi_protocol_tvl{protocol=\"aave\"}",
+            "legendFormat": "Aave"
+          },
+          {
+            "expr": "defi_protocol_tvl{protocol=\"compound\"}",
+            "legendFormat": "Compound"
+          },
+          {
+            "expr": "defi_protocol_tvl{protocol=\"uniswap\"}",
+            "legendFormat": "Uniswap"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
+        "type": "stat",
+        "title": "Total Users",
+        "targets": [
+          {
+            "expr": "count(distinct(user_address))"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
+        "type": "stat",
+        "title": "Total Value Locked",
+        "targets": [
+          {
+            "expr": "sum(total_value_locked_usd)"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
+        "type": "stat",
+        "title": "Active Positions",
+        "targets": [
+          {
+            "expr": "count(active_positions)"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32},
+        "type": "table",
+        "title": "System Health",
+        "targets": [
+          {
+            "expr": "up",
+            "format": "table",
+            "instant": true
+          }
+        ]
+      }
+    ]
+  }
+}

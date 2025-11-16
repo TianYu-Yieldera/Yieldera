@@ -1,0 +1,63 @@
+global:
+  resolve_timeout: 5m
+
+  # Slack configuration (optional)
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+
+  routes:
+    # Critical alerts
+    - match:
+        severity: critical
+      receiver: 'critical'
+      continue: true
+
+    # Warning alerts
+    - match:
+        severity: warning
+      receiver: 'warning'
+      continue: false
+
+receivers:
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook'
+        send_resolved: true
+
+  - name: 'critical'
+    slack_configs:
+      - channel: '#alerts-critical'
+        title: '🚨 CRITICAL ALERT'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}{{ end }}'
+        send_resolved: true
+    email_configs:
+      - to: 'ops-team@yieldera.io'
+        from: 'alerts@yieldera.io'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: '${EMAIL_USERNAME}'
+        auth_password: '${EMAIL_PASSWORD}'
+        headers:
+          Subject: '[CRITICAL] {{ .GroupLabels.alertname }}'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        severity: 'critical'
+
+  - name: 'warning'
+    slack_configs:
+      - channel: '#alerts-warning'
+        title: '⚠️ Warning Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']

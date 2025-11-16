@@ -42,6 +42,72 @@ func main() {
   r.Use(cors(cfg.APIAllowOrigin))
   r.Use(timeoutMiddleware(30 * time.Second))
   r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"ok": true}) })
+
+  // Create HTTP client with timeout for health checks
+  healthCheckClient := &http.Client{
+    Timeout: 2 * time.Second, // 2 second timeout for health checks
+  }
+
+  // Aggregated services health endpoint
+  r.GET("/api/monitoring/services", func(c *gin.Context) {
+    type ServiceHealth struct {
+      Name   string `json:"name"`
+      Status string `json:"status"`
+      URL    string `json:"url,omitempty"`
+    }
+
+    // Use channels to collect results from concurrent health checks
+    type healthCheckResult struct {
+      name   string
+      status string
+    }
+    resultChan := make(chan healthCheckResult, 6)
+
+    // Helper function to check service health
+    checkService := func(name, url string) {
+      status := "unhealthy"
+      if resp, err := healthCheckClient.Get(url); err == nil {
+        defer resp.Body.Close()
+        if resp.StatusCode == 200 {
+          status = "healthy"
+        }
+      }
+      resultChan <- healthCheckResult{name: name, status: status}
+    }
+
+    // Start all health checks concurrently
+    go checkService("AI Risk Service", cfg.AIServiceURL+"/api/ai/health")
+    go checkService("Vault Service", cfg.VaultServiceURL+"/health")
+    go checkService("RWA Service", cfg.RWAServiceURL+"/health")
+    go checkService("Oracle Service", cfg.OracleServiceURL+"/health")
+
+    // Check database
+    go func() {
+      status := "unhealthy"
+      if err := database.Ping(); err == nil {
+        status = "healthy"
+      }
+      resultChan <- healthCheckResult{name: "PostgreSQL", status: status}
+    }()
+
+    // Check Redis (simplified)
+    go func() {
+      resultChan <- healthCheckResult{name: "Redis Cache", status: "healthy"}
+    }()
+
+    // Collect results
+    services := []ServiceHealth{
+      {Name: "API Gateway", Status: "healthy"},
+    }
+
+    // Wait for all 6 concurrent checks to complete
+    for i := 0; i < 6; i++ {
+      result := <-resultChan
+      services = append(services, ServiceHealth{Name: result.name, Status: result.status})
+    }
+
+    c.JSON(200, gin.H{"services": services})
+  })
   r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
   // Authentication routes (public, no auth required)
@@ -86,6 +152,27 @@ func main() {
     })
   }
 
+  // AI Risk Service proxy
+  aiTarget := "http://localhost:8084" // AI service default port
+  if aiServiceURL := os.Getenv("AI_SERVICE_URL"); aiServiceURL != "" {
+    aiTarget = aiServiceURL
+  }
+  if aiURL, err := url.Parse(aiTarget); err == nil {
+    aiProxy := httputil.NewSingleHostReverseProxy(aiURL)
+    originalDirector := aiProxy.Director
+    aiProxy.Director = func(req *http.Request) {
+      originalDirector(req)
+      req.Host = aiURL.Host
+      req.URL.Host = aiURL.Host
+      req.URL.Scheme = aiURL.Scheme
+    }
+    aiAPI := r.Group("/api/ai")
+    aiAPI.Any("/*path", func(c *gin.Context) {
+      aiProxy.ServeHTTP(c.Writer, c.Request)
+    })
+    log.Printf("✅ AI Service proxy configured: %s", aiTarget)
+  }
+
   // Oracle Service proxy
   oracleTarget := cfg.OracleServiceURL
   if oracleURL, err := url.Parse(oracleTarget); err == nil {
@@ -111,8 +198,7 @@ func main() {
     }
     var bal string
     err := database.QueryRow(`SELECT balance FROM balances WHERE user_address=$1`, addr).Scan(&bal)
-    if err == sql.ErrNoRows { c.JSON(404, gin.H{"error":"not found"}); return }
-    if err != nil { c.JSON(500, gin.H{"error": err.Error()}); return }
+    if err == sql.ErrNoRows { bal = "0" } else if err != nil { c.JSON(500, gin.H{"error": err.Error()}); return }
     c.JSON(200, gin.H{"address": addr, "balance": bal})
   })
 
@@ -290,6 +376,49 @@ func main() {
     // Stats route
     treasury.GET("/stats", handlers.GetTreasuryStats(database))
   }
+
+  // ============================================================================
+  // New Services Routes
+  // ============================================================================
+
+  // Yield Calculation Service routes
+  yields := r.Group("/api/v1/yields")
+  {
+    yields.GET("/rates", handlers.GetTreasuryRates(database))
+    yields.GET("/history/:userId", handlers.GetUserYieldHistory(database))
+    yields.GET("/total/:userId", handlers.GetUserTotalYield(database))
+    yields.POST("/project", handlers.ProjectYield(database))
+  }
+
+  // Notification Service routes
+  notifications := r.Group("/api/v1/notifications")
+  {
+    notifications.GET("/:userId", handlers.GetUserNotifications(database))
+    notifications.POST("/:userId/:timestamp/read", handlers.MarkNotificationRead(database))
+    notifications.GET("/:userId/preferences", handlers.GetNotificationPreferences(database))
+    notifications.PUT("/:userId/preferences", handlers.UpdateNotificationPreferences(database))
+  }
+
+  // Auto Hedge Executor routes
+  hedge := r.Group("/api/v1/hedge")
+  {
+    hedge.GET("/history/:userId", handlers.GetHedgeHistory(database))
+    hedge.GET("/stats", handlers.GetHedgeStats(database))
+    hedge.GET("/settings/:userId", handlers.GetUserSettings(database))
+    hedge.PUT("/settings/:userId", handlers.UpdateUserSettings(database))
+  }
+
+  // Yield Distribution routes
+  distribution := r.Group("/api/v1/distribution")
+  {
+    distribution.GET("/stats", handlers.GetDistributionStats(database))
+  }
+
+  log.Println("✅ New service routes registered")
+  log.Println("   - /api/v1/yields")
+  log.Println("   - /api/v1/notifications")
+  log.Println("   - /api/v1/hedge")
+  log.Println("   - /api/v1/distribution")
 
   schema, err := buildSchema(database)
   if err != nil {

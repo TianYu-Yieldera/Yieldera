@@ -1,0 +1,503 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "ai-risk-engine",
+    "title": "AI Risk Engine - Monitoring Dashboard",
+    "tags": ["ai", "risk", "defi", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "5s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "API Request Rate",
+        "targets": [
+          {
+            "expr": "rate(ai_risk_api_requests_total[5m])",
+            "legendFormat": "{{method}} {{endpoint}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "reqps",
+            "label": "Requests/sec",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Request Latency (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ai_risk_api_request_duration_seconds_bucket[5m])) by (endpoint, le))",
+            "legendFormat": "{{endpoint}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Latency",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+        "type": "stat",
+        "title": "Total Risk Score",
+        "targets": [
+          {
+            "expr": "avg(ai_risk_score)",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value_and_name",
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "orange", "value": 70},
+                {"color": "red", "value": 85}
+              ]
+            },
+            "unit": "percent",
+            "decimals": 1
+          }
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+        "type": "stat",
+        "title": "Positions at Risk",
+        "targets": [
+          {
+            "expr": "sum(ai_risk_positions_at_risk)",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value_and_name",
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "orange", "value": 25},
+                {"color": "red", "value": 50}
+              ]
+            },
+            "unit": "short",
+            "decimals": 0
+          }
+        }
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+        "type": "stat",
+        "title": "Total Value at Risk",
+        "targets": [
+          {
+            "expr": "sum(ai_risk_total_value_at_risk_usd)",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value_and_name",
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1000000},
+                {"color": "orange", "value": 5000000},
+                {"color": "red", "value": 10000000}
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 0
+          }
+        }
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "title": "ML Model Predictions",
+        "targets": [
+          {
+            "expr": "rate(ai_risk_ml_predictions_total[5m])",
+            "legendFormat": "{{model_type}} - {{prediction_type}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ops",
+            "label": "Predictions/sec",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "title": "ML Model Latency",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ai_risk_ml_prediction_duration_seconds_bucket[5m])) by (model_type, le))",
+            "legendFormat": "{{model_type}} p95",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Latency",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "graph",
+        "title": "Simulation Performance",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ai_risk_simulation_duration_seconds_bucket[5m])) by (scenario_type, le))",
+            "legendFormat": "{{scenario_type}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Duration",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "graph",
+        "title": "Alert Distribution",
+        "targets": [
+          {
+            "expr": "sum(increase(ai_risk_alerts_triggered_total[1h])) by (alert_level)",
+            "legendFormat": "{{alert_level}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right"
+          }
+        }
+      },
+      {
+        "id": 10,
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 32},
+        "type": "gauge",
+        "title": "Cache Hit Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(ai_risk_cache_hits_total[5m])) / (sum(rate(ai_risk_cache_hits_total[5m])) + sum(rate(ai_risk_cache_misses_total[5m]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "green", "value": 80}
+              ]
+            },
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "decimals": 1
+          }
+        }
+      },
+      {
+        "id": 11,
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 32},
+        "type": "gauge",
+        "title": "Database Connections",
+        "targets": [
+          {
+            "expr": "ai_risk_db_connections_active",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 15},
+                {"color": "red", "value": 18}
+              ]
+            },
+            "unit": "short",
+            "min": 0,
+            "max": 20,
+            "decimals": 0
+          }
+        }
+      },
+      {
+        "id": 12,
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 32},
+        "type": "gauge",
+        "title": "WebSocket Connections",
+        "targets": [
+          {
+            "expr": "ai_risk_websocket_connections_active",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 500},
+                {"color": "orange", "value": 800},
+                {"color": "red", "value": 950}
+              ]
+            },
+            "unit": "short",
+            "min": 0,
+            "max": 1000,
+            "decimals": 0
+          }
+        }
+      },
+      {
+        "id": 13,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+        "type": "graph",
+        "title": "Batch Job Performance",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ai_risk_batch_job_duration_seconds_bucket[5m])) by (job_type, le))",
+            "legendFormat": "{{job_type}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Duration",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+        "type": "graph",
+        "title": "System Resources",
+        "targets": [
+          {
+            "expr": "ai_risk_cpu_usage_percent",
+            "legendFormat": "CPU %",
+            "refId": "A"
+          },
+          {
+            "expr": "ai_risk_memory_usage_bytes / 1024 / 1024 / 1024",
+            "legendFormat": "Memory GB",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "percent",
+            "label": "Usage",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 48},
+        "type": "table",
+        "title": "Recent Alerts",
+        "targets": [
+          {
+            "expr": "topk(10, ai_risk_alerts_triggered_total)",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": true,
+              "displayName": "Value"
+            }
+          ]
+        }
+      },
+      {
+        "id": 16,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 56},
+        "type": "heatmap",
+        "title": "Request Latency Heatmap",
+        "targets": [
+          {
+            "expr": "sum(rate(ai_risk_api_request_duration_seconds_bucket[5m])) by (le)",
+            "format": "heatmap",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "calculate": false,
+          "cellGap": 2,
+          "cellValues": {},
+          "color": {
+            "scheme": "Spectral"
+          },
+          "exemplars": {
+            "color": "rgba(255,0,255,0.7)"
+          },
+          "filterValues": {
+            "le": 1e-09
+          },
+          "legend": {
+            "show": true
+          },
+          "rowsFrame": {
+            "layout": "auto"
+          },
+          "showValue": "never",
+          "tooltip": {
+            "show": true,
+            "yHistogram": false
+          },
+          "yAxis": {
+            "axisPlacement": "left",
+            "reverse": false
+          }
+        }
+      },
+      {
+        "id": 17,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 56},
+        "type": "piechart",
+        "title": "Error Distribution",
+        "targets": [
+          {
+            "expr": "sum(rate(ai_risk_api_requests_total{status!=\"200\"}[1h])) by (status)",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "pieType": "donut",
+          "displayLabels": ["name", "percent"],
+          "legendDisplayMode": "table",
+          "legendPlacement": "right"
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "protocol",
+          "type": "query",
+          "query": "label_values(ai_risk_score, protocol)",
+          "multi": true,
+          "includeAll": true,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          }
+        },
+        {
+          "name": "model_type",
+          "type": "query",
+          "query": "label_values(ai_risk_ml_predictions_total, model_type)",
+          "multi": false,
+          "includeAll": false,
+          "current": {
+            "text": "lstm",
+            "value": "lstm"
+          }
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "datasource": "Prometheus",
+          "enable": true,
+          "name": "Alerts",
+          "iconColor": "red",
+          "query": "ALERTS{alertname=~\".*ai_risk.*\"}"
+        }
+      ]
+    }
+  }
+}

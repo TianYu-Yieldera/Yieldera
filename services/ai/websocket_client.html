@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Risk Engine - Real-time Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-disconnected {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #60a5fa;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .alerts-container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .alert {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .alert-info {
+            border-left-color: #3b82f6;
+        }
+
+        .alert-warning {
+            border-left-color: #f59e0b;
+        }
+
+        .alert-danger {
+            border-left-color: #ef4444;
+        }
+
+        .alert-critical {
+            border-left-color: #dc2626;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .alert-level {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .alert-time {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .alert-message {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .chart-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AI Risk Engine - Real-time Monitor</h1>
+
+        <div class="status-bar">
+            <div>
+                <span class="status-indicator status-disconnected" id="statusIndicator"></span>
+                <span id="connectionStatus">Disconnected</span>
+            </div>
+            <div id="connectionInfo"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+            <button onclick="clearAlerts()">Clear Alerts</button>
+            <button onclick="testAlert()">Test Alert</button>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3>📊 System Metrics</h3>
+                <div class="metric">
+                    <span>Positions Monitored</span>
+                    <span class="metric-value" id="positionsMonitored">0</span>
+                </div>
+                <div class="metric">
+                    <span>Alerts Triggered</span>
+                    <span class="metric-value" id="alertsTriggered">0</span>
+                </div>
+                <div class="metric">
+                    <span>At Risk Positions</span>
+                    <span class="metric-value" id="atRiskPositions">0</span>
+                </div>
+                <div class="metric">
+                    <span>System Health</span>
+                    <span class="metric-value" id="systemHealth">Unknown</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💰 Risk Metrics</h3>
+                <div class="metric">
+                    <span>Total Value at Risk</span>
+                    <span class="metric-value" id="totalValueAtRisk">$0</span>
+                </div>
+                <div class="metric">
+                    <span>Avg Health Factor</span>
+                    <span class="metric-value" id="avgHealthFactor">0.00</span>
+                </div>
+                <div class="metric">
+                    <span>Response Time</span>
+                    <span class="metric-value" id="responseTime">0ms</span>
+                </div>
+                <div class="metric">
+                    <span>Last Update</span>
+                    <span class="metric-value" id="lastUpdate">Never</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔔 Alert Summary</h3>
+                <div class="metric">
+                    <span>Critical</span>
+                    <span class="metric-value" id="criticalCount">0</span>
+                </div>
+                <div class="metric">
+                    <span>Danger</span>
+                    <span class="metric-value" id="dangerCount">0</span>
+                </div>
+                <div class="metric">
+                    <span>Warning</span>
+                    <span class="metric-value" id="warningCount">0</span>
+                </div>
+                <div class="metric">
+                    <span>Info</span>
+                    <span class="metric-value" id="infoCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 15px;">🚨 Live Alerts</h2>
+        <div class="alerts-container" id="alertsContainer">
+            <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                No alerts yet. Connect to start monitoring...
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div>📈 Real-time charts coming soon...</div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let reconnectInterval = null;
+        let alertCount = 0;
+
+        function connect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                console.log('Already connected');
+                return;
+            }
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//localhost:8084/ws/monitor`;
+
+            console.log('Connecting to:', wsUrl);
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = (event) => {
+                console.log('WebSocket connected');
+                updateConnectionStatus(true);
+
+                // Subscribe to all alerts
+                ws.send(JSON.stringify({
+                    type: 'subscribe',
+                    topics: ['alerts', 'metrics']
+                }));
+
+                // Start ping interval
+                setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ type: 'ping' }));
+                    }
+                }, 30000);
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (error) {
+                    console.error('Failed to parse message:', error);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateConnectionStatus(false);
+            };
+
+            ws.onclose = (event) => {
+                console.log('WebSocket disconnected');
+                updateConnectionStatus(false);
+
+                // Auto-reconnect after 5 seconds
+                if (!reconnectInterval) {
+                    reconnectInterval = setTimeout(() => {
+                        console.log('Attempting to reconnect...');
+                        connect();
+                        reconnectInterval = null;
+                    }, 5000);
+                }
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            if (reconnectInterval) {
+                clearTimeout(reconnectInterval);
+                reconnectInterval = null;
+            }
+            updateConnectionStatus(false);
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('statusIndicator');
+            const status = document.getElementById('connectionStatus');
+            const info = document.getElementById('connectionInfo');
+
+            if (connected) {
+                indicator.className = 'status-indicator status-connected';
+                status.textContent = 'Connected';
+                info.textContent = new Date().toLocaleTimeString();
+            } else {
+                indicator.className = 'status-indicator status-disconnected';
+                status.textContent = 'Disconnected';
+                info.textContent = 'Not connected';
+            }
+        }
+
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'connection':
+                    console.log('Connection established:', data);
+                    break;
+
+                case 'alert':
+                    handleAlert(data.alert);
+                    break;
+
+                case 'metrics':
+                    updateMetrics(data.metrics);
+                    break;
+
+                case 'pong':
+                    console.log('Pong received');
+                    break;
+
+                default:
+                    console.log('Unknown message type:', data.type);
+            }
+        }
+
+        function handleAlert(alert) {
+            alertCount++;
+
+            // Update alert counts
+            const counts = {
+                critical: 0,
+                danger: 0,
+                warning: 0,
+                info: 0
+            };
+
+            const levelKey = alert.level.toLowerCase();
+            if (counts.hasOwnProperty(levelKey)) {
+                const currentCount = parseInt(document.getElementById(`${levelKey}Count`).textContent);
+                document.getElementById(`${levelKey}Count`).textContent = currentCount + 1;
+            }
+
+            // Add alert to container
+            const container = document.getElementById('alertsContainer');
+
+            // Clear placeholder text if this is the first alert
+            if (alertCount === 1) {
+                container.innerHTML = '';
+            }
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${alert.level}`;
+            alertDiv.innerHTML = `
+                <div class="alert-header">
+                    <span class="alert-level" style="background: ${getLevelColor(alert.level)}">${alert.level}</span>
+                    <span class="alert-time">${new Date(alert.timestamp).toLocaleTimeString()}</span>
+                </div>
+                <div class="alert-title" style="font-weight: bold; margin-bottom: 5px;">${alert.title}</div>
+                <div class="alert-message">${alert.message}</div>
+            `;
+
+            // Add to top of container
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // Limit to 50 alerts
+            while (container.children.length > 50) {
+                container.removeChild(container.lastChild);
+            }
+
+            // Update alerts triggered count
+            document.getElementById('alertsTriggered').textContent = alertCount;
+        }
+
+        function updateMetrics(metrics) {
+            document.getElementById('positionsMonitored').textContent = metrics.positions_monitored || 0;
+            document.getElementById('alertsTriggered').textContent = metrics.alerts_triggered || 0;
+            document.getElementById('atRiskPositions').textContent = metrics.at_risk_positions || 0;
+            document.getElementById('systemHealth').textContent = metrics.system_health || 'Unknown';
+
+            const valueAtRisk = metrics.total_value_at_risk || 0;
+            document.getElementById('totalValueAtRisk').textContent = `$${valueAtRisk.toLocaleString()}`;
+
+            const avgHealth = metrics.avg_health_factor || 0;
+            document.getElementById('avgHealthFactor').textContent = avgHealth.toFixed(2);
+
+            const responseTime = metrics.response_time_ms || 0;
+            document.getElementById('responseTime').textContent = `${responseTime.toFixed(0)}ms`;
+
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        function getLevelColor(level) {
+            const colors = {
+                info: '#3b82f6',
+                warning: '#f59e0b',
+                danger: '#ef4444',
+                critical: '#dc2626'
+            };
+            return colors[level.toLowerCase()] || '#6b7280';
+        }
+
+        function clearAlerts() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = `
+                <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                    Alerts cleared. Waiting for new alerts...
+                </div>
+            `;
+            alertCount = 0;
+
+            // Reset counters
+            document.getElementById('criticalCount').textContent = '0';
+            document.getElementById('dangerCount').textContent = '0';
+            document.getElementById('warningCount').textContent = '0';
+            document.getElementById('infoCount').textContent = '0';
+            document.getElementById('alertsTriggered').textContent = '0';
+        }
+
+        function testAlert() {
+            const levels = ['info', 'warning', 'danger', 'critical'];
+            const level = levels[Math.floor(Math.random() * levels.length)];
+
+            const testAlert = {
+                level: level,
+                title: 'Test Alert',
+                message: `This is a test ${level} alert to verify the monitoring system.`,
+                timestamp: new Date().toISOString()
+            };
+
+            handleAlert(testAlert);
+        }
+
+        // Auto-connect on page load
+        window.addEventListener('load', () => {
+            setTimeout(connect, 1000);
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+        });
+    </script>
+</body>
+</html>
