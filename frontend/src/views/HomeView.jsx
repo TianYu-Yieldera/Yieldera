@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useWallet } from "../web3/WalletContext";
 import { useDemoMode } from "../web3/DemoModeContext";
 import { config } from "../config/env";
-import AIRiskDashboard from "../components/AIRiskDashboard";
-import AIRiskDashboardEnhanced from "../components/AIRiskDashboardEnhanced";
+import AIRiskDashboardPro from "../components/AIRiskDashboardPro";
 import HedgeRecommendation from "../components/HedgeRecommendation";
 import RiskTrendChart from "../components/RiskTrendChart";
 import { DollarSign, Shield, TrendingUp, Wallet, Target, Layers, Activity } from "lucide-react";
@@ -240,9 +239,9 @@ export default function HomeView() {
         />
       </div>
 
-      {/* AI Risk Dashboard - Enhanced Version */}
+      {/* AI Risk Dashboard - Professional Version */}
       <div style={{ marginBottom: 32 }}>
-        <AIRiskDashboardEnhanced />
+        <AIRiskDashboardPro />
       </div>
 
       {/* Risk & Yield Trends - Original Version */}

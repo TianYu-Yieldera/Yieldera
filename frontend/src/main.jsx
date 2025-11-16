@@ -14,6 +14,7 @@ const TreasuryDetailView = lazy(() => import("./views/TreasuryDetailView"));
 const TreasuryHoldingsView = lazy(() => import("./views/TreasuryHoldingsView"));
 const TutorialView = lazy(() => import("./views/TutorialView"));
 const MonitoringView = lazy(() => import("./views/MonitoringView"));
+const LiquidationAlertDemo = lazy(() => import("./components/LiquidationAlertDemo"));
 
 // Loading component with better UX
 function LoadingFallback() {
@@ -95,6 +96,7 @@ function App(){
               <Route path='/treasury/holdings' element={<TreasuryHoldingsView />} />
               <Route path='/monitoring' element={<MonitoringView />} />
               <Route path='/tutorial' element={<TutorialView />} />
+              <Route path='/demo/liquidation-alert' element={<LiquidationAlertDemo />} />
               {/* 删除的路由重定向到首页 */}
               <Route path='*' element={<Navigate to="/dashboard" replace />} />
             </Routes>

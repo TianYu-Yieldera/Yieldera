@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Home, Monitor, TrendingUp, Gem, Shield, Youtube, Video, ExternalLink, Check, BookOpen, Zap } from 'lucide-react';
+import { Play, Home, Monitor, TrendingUp, Gem, Shield, Youtube, Video, ExternalLink, Check, BookOpen, Zap, Brain, AlertTriangle } from 'lucide-react';
 import { useDemoMode } from '../web3/DemoModeContext';
 import TechContainer from "../components/ui/TechContainer";
 import TechHeader from "../components/ui/TechHeader";
@@ -371,7 +371,8 @@ export default function TutorialView() {
               {[
                 { icon: TrendingUp, title: 'Yield Vault', desc: 'Auto-optimize DeFi returns', path: '/vault', color: 'rgb(34, 211, 238)' },
                 { icon: Gem, title: 'Treasury Bonds', desc: 'Stable RWA investments', path: '/treasury', color: 'rgb(59, 130, 246)' },
-                { icon: Shield, title: 'AI Risk Control', desc: 'View risk assessment reports', path: '/dashboard', color: 'rgb(34, 197, 94)' }
+                { icon: Shield, title: 'AI Risk Control', desc: 'View risk assessment reports', path: '/dashboard', color: 'rgb(34, 197, 94)' },
+                { icon: Brain, title: 'AI Risk Demo', desc: 'Interactive liquidation alerts', path: '/demo/liquidation-alert', color: 'rgb(168, 85, 247)', badge: 'NEW' }
               ].map((item, i) => {
                 const Icon = item.icon;
                 return (
@@ -417,8 +418,20 @@ export default function TutorialView() {
                       <Icon size={20} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: 2 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 8 }}>
                         {item.title}
+                        {item.badge && (
+                          <span style={{
+                            fontSize: 10,
+                            padding: '2px 6px',
+                            background: 'linear-gradient(135deg, rgb(168, 85, 247) 0%, rgb(124, 58, 237) 100%)',
+                            borderRadius: 4,
+                            fontWeight: 700,
+                            letterSpacing: 0.5
+                          }}>
+                            {item.badge}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)' }}>
                         {item.desc}

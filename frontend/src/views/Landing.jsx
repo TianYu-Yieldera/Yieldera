@@ -121,7 +121,7 @@ export default function Landing(){
         <div style={{
           background: 'radial-gradient(ellipse at center, rgb(10, 25, 47) 0%, rgb(5, 10, 20) 50%, rgb(0, 0, 0) 100%)',
           borderRadius: 16,
-          padding: '40px 40px 32px',
+          padding: '24px 40px 32px',
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',
@@ -230,15 +230,17 @@ export default function Landing(){
 
           <div style={{position: 'relative', zIndex: 1}}>
             <h1 style={{
-              margin:'0 0 16px 0',
-              fontSize: '72px',
+              margin:'0 0 12px 0',
+              fontSize: '56px',
               fontWeight: '900',
               color: '#fff',
-              letterSpacing: '-3px',
+              letterSpacing: '-2px',
               lineHeight: '1.1',
               textShadow: `
-                0 0 40px rgba(34, 211, 238, 0.3),
-                0 0 80px rgba(34, 211, 238, 0.15),
+                0 0 30px rgba(34, 211, 238, 0.6),
+                0 0 60px rgba(34, 211, 238, 0.4),
+                0 0 90px rgba(34, 211, 238, 0.3),
+                0 0 120px rgba(34, 211, 238, 0.2),
                 0 4px 16px rgba(0, 0, 0, 0.5)
               `
             }}>
@@ -247,31 +249,33 @@ export default function Landing(){
 
             {/* Bold Professional Tagline - Equal importance to brand */}
             <h2 style={{
-              fontSize: '42px',
+              fontSize: '32px',
               fontWeight: '600',
               letterSpacing: '-0.5px',
-              margin: '0 0 24px 0',
+              margin: '0 0 16px 0',
               color: 'rgba(255, 255, 255, 0.95)',
               textShadow: `
-                0 0 50px rgba(34, 211, 238, 0.4),
-                0 0 100px rgba(34, 211, 238, 0.2),
+                0 0 25px rgba(34, 211, 238, 0.5),
+                0 0 50px rgba(34, 211, 238, 0.35),
+                0 0 75px rgba(34, 211, 238, 0.25),
+                0 0 100px rgba(34, 211, 238, 0.15),
                 0 2px 8px rgba(0, 0, 0, 0.3)
               `,
               lineHeight: '1.2'
             }}>
-              The Future of DeFi Yield
+              Multi-Chain DeFi + RWA Treasury
             </h2>
 
             <p style={{
-              fontSize: '16px',
-              color: 'rgba(203, 213, 225, 0.95)',
-              maxWidth: '800px',
-              margin: '0 auto 32px',
-              lineHeight: '1.7',
-              fontWeight: '400'
+              fontSize: '13px',
+              color: 'rgba(203, 213, 225, 0.6)',
+              maxWidth: '700px',
+              margin: '0 auto 24px',
+              lineHeight: '1.5',
+              fontWeight: '400',
+              opacity: 0.8
             }}>
-              Institutional-grade DeFi yield optimizer. AI-powered risk management.<br/>
-              Automated treasury bond integration. Your gateway to sustainable wealth growth.
+              <strong style={{ color: 'rgba(34, 211, 238, 0.8)' }}>Arbitrum</strong> DeFi (Aave, GMX, Uniswap) + <strong style={{ color: 'rgba(34, 211, 238, 0.8)' }}>Base</strong> Treasury + <strong style={{ color: 'rgba(34, 211, 238, 0.8)' }}>AI Risk</strong> (10K agents, VaR/CVaR)
             </p>
 
             {/* 3D Protocol Network Visualization */}
@@ -284,52 +288,58 @@ export default function Landing(){
         {/* Live Stats with animated counters */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '16px',
           marginTop: '24px'
         }}>
           <div className="stat-card counter" style={{
-            padding: '32px 24px',
+            padding: '28px 20px',
             textAlign: 'center',
             borderRadius: 12
           }}>
-            <div style={{fontSize: '36px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>8.45%</div>
-            <div style={{fontSize: '14px', fontWeight: '500', color: 'rgb(100, 116, 139)'}}>Average APY</div>
-            <div style={{fontSize: '13px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>↑ 12.3% This Month</div>
+            <div style={{fontSize: '32px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>2</div>
+            <div style={{fontSize: '14px', fontWeight: '600', color: 'rgb(100, 116, 139)'}}>L2 Chains</div>
+            <div style={{fontSize: '12px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>Arbitrum + Base</div>
           </div>
 
           <div className="stat-card counter" style={{
-            padding: '32px 24px',
+            padding: '28px 20px',
             textAlign: 'center',
             borderRadius: 12
           }}>
-            <div style={{fontSize: '36px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>
-              ${tvl.toFixed(1)}M
-            </div>
-            <div style={{fontSize: '14px', fontWeight: '500', color: 'rgb(100, 116, 139)'}}>Total Value Locked</div>
-            <div style={{fontSize: '13px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>↑ 18.7% This Week</div>
+            <div style={{fontSize: '32px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>6+</div>
+            <div style={{fontSize: '14px', fontWeight: '600', color: 'rgb(100, 116, 139)'}}>DeFi Protocols</div>
+            <div style={{fontSize: '12px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>Aave, Compound, GMX...</div>
           </div>
 
           <div className="stat-card counter" style={{
-            padding: '32px 24px',
+            padding: '28px 20px',
             textAlign: 'center',
             borderRadius: 12
           }}>
-            <div style={{fontSize: '36px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>
-              {users.toLocaleString()}
-            </div>
-            <div style={{fontSize: '14px', fontWeight: '500', color: 'rgb(100, 116, 139)'}}>Active Users</div>
-            <div style={{fontSize: '13px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>+2,156 New This Week</div>
+            <div style={{fontSize: '32px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>5</div>
+            <div style={{fontSize: '14px', fontWeight: '600', color: 'rgb(100, 116, 139)'}}>AI Risk Functions</div>
+            <div style={{fontSize: '12px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>VaR, CVaR, ML, Agent Sim</div>
           </div>
 
           <div className="stat-card counter" style={{
-            padding: '32px 24px',
+            padding: '28px 20px',
             textAlign: 'center',
             borderRadius: 12
           }}>
-            <div style={{fontSize: '36px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>24/7</div>
-            <div style={{fontSize: '14px', fontWeight: '500', color: 'rgb(100, 116, 139)'}}>Auto-Rebalancing</div>
-            <div style={{fontSize: '13px', color: 'rgb(100, 116, 139)', marginTop: '8px', fontWeight: '600'}}>Smart Optimization</div>
+            <div style={{fontSize: '32px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>10K+</div>
+            <div style={{fontSize: '14px', fontWeight: '600', color: 'rgb(100, 116, 139)'}}>Simulated Agents</div>
+            <div style={{fontSize: '12px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>Monte Carlo Risk Analysis</div>
+          </div>
+
+          <div className="stat-card counter" style={{
+            padding: '28px 20px',
+            textAlign: 'center',
+            borderRadius: 12
+          }}>
+            <div style={{fontSize: '32px', fontWeight: '700', color: 'rgb(29, 78, 216)', marginBottom: '8px'}}>24/7</div>
+            <div style={{fontSize: '14px', fontWeight: '600', color: 'rgb(100, 116, 139)'}}>Liquidation Monitoring</div>
+            <div style={{fontSize: '12px', color: 'rgb(22, 163, 74)', marginTop: '8px', fontWeight: '600'}}>Real-time Health Factor</div>
           </div>
         </div>
 
@@ -456,17 +466,17 @@ export default function Landing(){
               marginBottom: '16px',
               marginTop: 0
             }}>
-              Why Yieldera?
+              Why Yieldera
             </h2>
             <p style={{
-              fontSize: '18px',
-              color: 'rgba(255, 255, 255, 0.9)',
+              fontSize: '17px',
+              color: 'rgba(255, 255, 255, 0.85)',
               textAlign: 'center',
-              maxWidth: '700px',
+              maxWidth: '650px',
               margin: '0 auto 48px',
-              lineHeight: '1.7'
+              lineHeight: '1.6'
             }}>
-              We're not just another DeFi protocol. We're building the future of institutional-grade yield optimization.
+              The only platform combining DeFi, RWA, and institutional AI in one interface
             </p>
 
             <div style={{
@@ -476,44 +486,44 @@ export default function Landing(){
             }}>
               {[
                 {
-                  icon: <Zap size={32} />,
-                  title: 'Lightning Fast Execution',
-                  description: 'Execute trades and rebalancing in milliseconds. Zero-lag optimization across all integrated protocols.'
-                },
-                {
-                  icon: <Lock size={32} />,
-                  title: 'Bank-Grade Security',
-                  description: 'Multi-signature wallets, audited smart contracts, and institutional custody solutions protect your assets.'
-                },
-                {
                   icon: <Globe size={32} />,
-                  title: 'RWA Market Access',
-                  description: 'Direct access to US Treasury bonds and international real-world asset markets from your wallet.'
-                },
-                {
-                  icon: <BarChart3 size={32} />,
-                  title: 'Advanced Analytics',
-                  description: 'Comprehensive dashboards with live risk scoring, position tracking, and performance metrics powered by AI.'
-                },
-                {
-                  icon: <Target size={32} />,
-                  title: 'Smart Rebalancing',
-                  description: 'Automated 24/7 portfolio rebalancing identifies and captures optimal yield opportunities across 50+ protocols.'
+                  title: 'Dual-Chain Architecture',
+                  description: 'Arbitrum for high-yield DeFi. Base for stable US Treasuries. Best of both worlds.'
                 },
                 {
                   icon: <Shield size={32} />,
-                  title: 'AI Risk Monitoring',
-                  description: 'Real-time market risk analysis and position health tracking with intelligent alerts to protect capital.'
+                  title: 'AI Risk Engine',
+                  description: '10,000-agent Monte Carlo simulations. VaR/CVaR metrics. Real-time liquidation alerts.'
                 },
                 {
-                  icon: <Repeat size={32} />,
-                  title: 'Multi-Protocol Integration',
-                  description: 'Seamless integration with Aave, Compound, Uniswap, GMX and more. One interface to access the entire DeFi ecosystem.'
+                  icon: <TrendingUp size={32} />,
+                  title: 'Auto-Optimization',
+                  description: '24/7 rebalancing across 6+ protocols. Intelligent batching. Ultra-low gas costs.'
                 },
                 {
-                  icon: <DollarSign size={32} />,
-                  title: 'Ultra-Low Gas Costs',
-                  description: 'Leveraging Layer 1 + Layer 2 architecture to achieve industry-leading low gas fees. Save up to 90% on transaction costs.'
+                  icon: <Gem size={32} />,
+                  title: 'Treasury Bonds',
+                  description: 'Tokenized US Treasuries on Base. 5% APY. Multiple maturities (1M-12M).'
+                },
+                {
+                  icon: <Lock size={32} />,
+                  title: 'Enterprise Security',
+                  description: 'Multi-sig wallets. Audited contracts. Role-based access control.'
+                },
+                {
+                  icon: <BarChart3 size={32} />,
+                  title: 'Pro Analytics',
+                  description: 'Liquidation probability. Sharpe ratios. Performance tracking. CSV/PDF export.'
+                },
+                {
+                  icon: <Target size={32} />,
+                  title: 'Aerodrome Integration',
+                  description: 'Efficient Base chain liquidity. Minimal slippage for treasury purchases.'
+                },
+                {
+                  icon: <Zap size={32} />,
+                  title: 'L2 Speed & Cost',
+                  description: '90%+ gas savings vs Ethereum. Lightning-fast transactions on Arbitrum & Base.'
                 }
               ].map((item, i) => (
                 <div key={i} style={{
@@ -576,24 +586,24 @@ export default function Landing(){
               width: '64px',
               height: '64px',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgb(29, 78, 216), rgb(59, 130, 246))',
+              background: 'linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '24px',
-              boxShadow: '0 8px 16px rgba(29, 78, 216, 0.3)'
+              boxShadow: '0 8px 16px rgba(59, 130, 246, 0.3)'
             }}>
               <TrendingUp size={32} color="#fff" strokeWidth={2.5} />
             </div>
             <h3 style={{marginTop: 0, marginBottom: '12px', fontSize: '22px', fontWeight: '700', color: 'rgb(15, 23, 42)'}}>
-              Smart Yield Optimization
+              Arbitrum DeFi
             </h3>
             <p style={{fontSize: '15px', lineHeight: '1.7', marginBottom: '20px', color: 'rgb(71, 85, 105)'}}>
-              Auto-monitor APY across Aave, Compound, Uniswap V3, and GMX. Rebalance every 24 hours to ensure maximum returns with minimal gas costs.
+              High-yield strategies across Aave V3, Compound V3, Uniswap V3, and GMX V2. Auto-rebalancing every 24 hours.
             </p>
-            <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'rgb(29, 78, 216)', fontSize: '14px', fontWeight: '600'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'rgb(59, 130, 246)', fontSize: '14px', fontWeight: '600'}}>
               <CheckCircle size={18} />
-              Average 8.45% APY
+              6+ Protocols Integrated
             </div>
           </div>
 
@@ -607,24 +617,24 @@ export default function Landing(){
               width: '64px',
               height: '64px',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgb(29, 78, 216), rgb(59, 130, 246))',
+              background: 'linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '24px',
-              boxShadow: '0 8px 16px rgba(29, 78, 216, 0.3)'
+              boxShadow: '0 8px 16px rgba(16, 185, 129, 0.3)'
             }}>
               <Gem size={32} color="#fff" strokeWidth={2.5} />
             </div>
             <h3 style={{marginTop: 0, marginBottom: '12px', fontSize: '22px', fontWeight: '700', color: 'rgb(15, 23, 42)'}}>
-              US Treasury Integration
+              Base Treasury
             </h3>
             <p style={{fontSize: '15px', lineHeight: '1.7', marginBottom: '20px', color: 'rgb(71, 85, 105)'}}>
-              Use your DeFi earnings to purchase US Treasury bonds and premium RWA assets. Seamless conversion from volatile yields to stable real-world returns.
+              Tokenized US Treasury bonds. Stable 5% APY backed by U.S. government. Choose from 1M, 3M, 6M, or 12M maturities.
             </p>
-            <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'rgb(29, 78, 216)', fontSize: '14px', fontWeight: '600'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'rgb(16, 185, 129)', fontSize: '14px', fontWeight: '600'}}>
               <CheckCircle size={18} />
-              Multiple Maturities Available
+              Government-Backed RWA
             </div>
           </div>
 
@@ -638,24 +648,24 @@ export default function Landing(){
               width: '64px',
               height: '64px',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgb(29, 78, 216), rgb(59, 130, 246))',
+              background: 'linear-gradient(135deg, rgb(245, 158, 11), rgb(217, 119, 6))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '24px',
-              boxShadow: '0 8px 16px rgba(29, 78, 216, 0.3)'
+              boxShadow: '0 8px 16px rgba(245, 158, 11, 0.3)'
             }}>
               <Shield size={32} color="#fff" strokeWidth={2.5} />
             </div>
             <h3 style={{marginTop: 0, marginBottom: '12px', fontSize: '22px', fontWeight: '700', color: 'rgb(15, 23, 42)'}}>
-              AI Risk Management
+              AI Risk Engine
             </h3>
             <p style={{fontSize: '15px', lineHeight: '1.7', marginBottom: '20px', color: 'rgb(71, 85, 105)'}}>
-              Institutional-grade risk monitoring. Real-time market analysis, position health tracking, and intelligent alerts to protect your capital.
+              10,000-agent simulations. VaR/CVaR calculations. ML predictions. Real-time liquidation alerts protect your positions.
             </p>
-            <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'rgb(29, 78, 216)', fontSize: '14px', fontWeight: '600'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'rgb(245, 158, 11)', fontSize: '14px', fontWeight: '600'}}>
               <CheckCircle size={18} />
-              24/7 Monitoring
+              5 AI Functions (FastAPI)
             </div>
           </div>
         </div>
@@ -670,67 +680,61 @@ export default function Landing(){
         }}>
           <h2 style={{
             marginTop: 0,
-            marginBottom: '12px',
+            marginBottom: '48px',
             fontSize: '36px',
             fontWeight: '800',
             textAlign: 'center',
             color: 'rgb(15, 23, 42)'
           }}>
-            Integrated with Top DeFi Protocols
+            Integrated Protocols
           </h2>
-          <p style={{
-            textAlign: 'center',
-            fontSize: '17px',
-            marginBottom: '48px',
-            maxWidth: '650px',
-            margin: '0 auto 48px',
-            color: 'rgb(100, 116, 139)',
-            lineHeight: '1.7'
-          }}>
-            Deep integration with industry-leading protocols to provide the most secure and efficient yield strategies
-          </p>
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '20px'
           }}>
             {[
-              { name: 'Aave V3', apy: '7.2%', tvl: '$12.3B', color: 'rgb(182, 80, 158)' },
-              { name: 'Compound V3', apy: '6.8%', tvl: '$3.1B', color: 'rgb(0, 211, 149)' },
-              { name: 'Uniswap V3', apy: '12.5%', tvl: '$4.2B', color: 'rgb(255, 0, 122)' },
-              { name: 'GMX', apy: '15.3%', tvl: '$582M', color: 'rgb(59, 130, 246)' }
+              { name: 'Aave V3', chain: 'Arbitrum', apy: '7.2%', tvl: '$12.3B', color: 'rgb(182, 80, 158)' },
+              { name: 'Compound V3', chain: 'Arbitrum', apy: '6.8%', tvl: '$3.1B', color: 'rgb(0, 211, 149)' },
+              { name: 'Uniswap V3', chain: 'Arbitrum', apy: '12.5%', tvl: '$4.2B', color: 'rgb(255, 0, 122)' },
+              { name: 'GMX V2', chain: 'Arbitrum', apy: '15.3%', tvl: '$582M', color: 'rgb(59, 130, 246)' },
+              { name: 'Aerodrome', chain: 'Base', apy: '8.7%', tvl: '$450M', color: 'rgb(168, 85, 247)' },
+              { name: 'US Treasury', chain: 'Base', apy: '5.0%', tvl: 'RWA', color: 'rgb(16, 185, 129)' }
             ].map((protocol) => (
               <div key={protocol.name} className="protocol-card" style={{
-                padding: '28px',
+                padding: '24px',
                 background: 'rgb(248, 250, 252)',
                 borderRadius: '12px',
                 border: '1px solid rgb(226, 232, 240)',
                 textAlign: 'center'
               }}>
                 <div style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '14px',
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '12px',
                   background: protocol.color,
-                  margin: '0 auto 20px',
+                  margin: '0 auto 16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '24px',
+                  fontSize: '22px',
                   fontWeight: 'bold',
                   color: '#fff',
                   boxShadow: `0 8px 16px ${protocol.color}40`
                 }}>
                   {protocol.name[0]}
                 </div>
-                <div style={{fontSize: '20px', fontWeight: '700', marginBottom: '8px', color: 'rgb(15, 23, 42)'}}>
+                <div style={{fontSize: '18px', fontWeight: '700', marginBottom: '6px', color: 'rgb(15, 23, 42)'}}>
                   {protocol.name}
                 </div>
-                <div style={{fontSize: '15px', color: 'rgb(22, 163, 74)', fontWeight: '700', marginBottom: '6px'}}>
+                <div style={{fontSize: '12px', color: 'rgb(100, 116, 139)', marginBottom: '10px', fontWeight: '600'}}>
+                  {protocol.chain}
+                </div>
+                <div style={{fontSize: '15px', color: 'rgb(22, 163, 74)', fontWeight: '700', marginBottom: '4px'}}>
                   APY: {protocol.apy}
                 </div>
-                <div style={{fontSize: '13px', color: 'rgb(100, 116, 139)', fontWeight: '500'}}>
+                <div style={{fontSize: '12px', color: 'rgb(100, 116, 139)', fontWeight: '500'}}>
                   TVL: {protocol.tvl}
                 </div>
               </div>
@@ -855,48 +859,38 @@ export default function Landing(){
               marginTop: 0,
               fontSize: '40px',
               fontWeight: '800',
-              marginBottom: '20px',
+              marginBottom: '36px',
               color: 'white'
             }}>
-              Ready to Start?
+              Start Earning Now
             </h2>
-            <p style={{
-              fontSize: '18px',
-              marginBottom: '36px',
-              maxWidth: '600px',
-              margin: '0 auto 36px',
-              lineHeight: '1.8',
-              color: 'rgba(203, 213, 225, 0.9)'
-            }}>
-              Connect your wallet and start earning. No complex setup required. Get started in minutes.
-            </p>
             <Link
               to="/vault"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '12px',
-                padding: '18px 48px',
+                padding: '20px 56px',
                 background: 'rgb(34, 211, 238)',
                 color: 'rgb(15, 23, 42)',
-                borderRadius: '8px',
+                borderRadius: '12px',
                 fontWeight: '700',
-                fontSize: '18px',
+                fontSize: '20px',
                 textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(34, 211, 238, 0.4)',
+                boxShadow: '0 8px 32px rgba(34, 211, 238, 0.5)',
                 transition: 'all 0.3s',
                 border: 'none'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 32px rgba(34, 211, 238, 0.5)';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 16px 48px rgba(34, 211, 238, 0.6)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(34, 211, 238, 0.4)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(34, 211, 238, 0.5)';
               }}
             >
-              Launch App <ArrowRight size={22} />
+              Launch App <ArrowRight size={24} />
             </Link>
           </div>
         </div>
