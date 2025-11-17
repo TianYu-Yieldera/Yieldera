@@ -5,9 +5,12 @@ import TechContainer from "../components/ui/TechContainer";
 import TechHeader from "../components/ui/TechHeader";
 import TechCard from "../components/ui/TechCard";
 import TechButton from "../components/ui/TechButton";
+import { useBaseSmartWallet } from "../web3/BaseSmartWalletProvider";
+import BaseLoginCard from "../components/BaseLoginCard";
 
 export default function TreasuryMarketView() {
   const navigate = useNavigate();
+  const { isConnected, address, chain } = useBaseSmartWallet();
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [stats, setStats] = useState(null);
@@ -186,6 +189,57 @@ export default function TreasuryMarketView() {
         };
     }
   };
+
+  // Check if user is connected with Smart Wallet
+  if (!isConnected) {
+    return (
+      <TechContainer>
+        <div style={{ maxWidth: 600, margin: '40px auto', padding: 20 }}>
+          {/* Chain Badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 16px',
+            background: 'rgba(99, 102, 241, 0.15)',
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+            borderRadius: 20,
+            marginBottom: 24,
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'rgb(99, 102, 241)'
+          }}>
+            <Shield size={16} />
+            Base Chain Exclusive
+          </div>
+
+          <BaseLoginCard onLoginSuccess={() => window.location.reload()} />
+
+          {/* Info Box */}
+          <div style={{
+            marginTop: 32,
+            padding: 20,
+            background: 'rgba(34, 211, 238, 0.05)',
+            border: '1px solid rgba(34, 211, 238, 0.2)',
+            borderRadius: 12,
+            fontSize: 14,
+            color: 'rgba(203, 213, 225, 0.9)',
+            lineHeight: 1.6
+          }}>
+            <strong style={{ display: 'block', marginBottom: 8, color: 'rgb(34, 211, 238)' }}>
+              💡 为什么只能在 Base 链购买国债？
+            </strong>
+            <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
+              <li>Base 链提供 Smart Wallet，无需助记词</li>
+              <li>Gas 费由平台赞助，降低使用门槛</li>
+              <li>支持信用卡入金，更适合传统投资者</li>
+              <li>美国国债属于稳健资产，匹配 Base 链的定位</li>
+            </ul>
+          </div>
+        </div>
+      </TechContainer>
+    );
+  }
 
   if (loading) {
     return (

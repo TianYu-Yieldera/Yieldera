@@ -9,11 +9,13 @@ import Header from "./components/Header";
 const Landing = lazy(() => import("./views/Landing"));
 const HomeView = lazy(() => import("./views/HomeView"));
 const VaultView = lazy(() => import("./views/VaultView"));
+const TreasuryWrapper = lazy(() => import("./views/TreasuryWrapper"));
 const TreasuryMarketView = lazy(() => import("./views/TreasuryMarketView"));
 const TreasuryDetailView = lazy(() => import("./views/TreasuryDetailView"));
 const TreasuryHoldingsView = lazy(() => import("./views/TreasuryHoldingsView"));
 const TutorialView = lazy(() => import("./views/TutorialView"));
 const MonitoringView = lazy(() => import("./views/MonitoringView"));
+const LiquidationAlertDemo = lazy(() => import("./components/LiquidationAlertDemo"));
 
 // Loading component with better UX
 function LoadingFallback() {
@@ -90,11 +92,17 @@ function App(){
               <Route path='/' element={<Landing />} />
               <Route path='/dashboard' element={<HomeView />} />
               <Route path='/vault' element={<VaultView />} />
-              <Route path='/treasury' element={<TreasuryMarketView />} />
-              <Route path='/treasury/:assetId' element={<TreasuryDetailView />} />
-              <Route path='/treasury/holdings' element={<TreasuryHoldingsView />} />
+
+              {/* Treasury routes - Base Chain Smart Wallet only */}
+              <Route path='/treasury' element={<TreasuryWrapper />}>
+                <Route index element={<TreasuryMarketView />} />
+                <Route path=':assetId' element={<TreasuryDetailView />} />
+                <Route path='holdings' element={<TreasuryHoldingsView />} />
+              </Route>
+
               <Route path='/monitoring' element={<MonitoringView />} />
               <Route path='/tutorial' element={<TutorialView />} />
+              <Route path='/demo/liquidation-alert' element={<LiquidationAlertDemo />} />
               {/* 删除的路由重定向到首页 */}
               <Route path='*' element={<Navigate to="/dashboard" replace />} />
             </Routes>

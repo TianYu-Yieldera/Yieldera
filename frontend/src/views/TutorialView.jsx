@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Home, Monitor, TrendingUp, Gem, Shield, Youtube, Video, ExternalLink, Check, BookOpen, Zap } from 'lucide-react';
+import { Play, Home, Monitor, TrendingUp, Gem, Shield, Youtube, Video, ExternalLink, Check, BookOpen, Zap, Brain, AlertTriangle, ArrowRight } from 'lucide-react';
 import { useDemoMode } from '../web3/DemoModeContext';
 import TechContainer from "../components/ui/TechContainer";
 import TechHeader from "../components/ui/TechHeader";
@@ -31,6 +31,13 @@ export default function TutorialView() {
       console.error('Failed to toggle demo mode', err);
       alert('Failed to initialize demo mode, please try again later');
     }
+  };
+
+  const handleNavigateWithDemo = async (path) => {
+    if (!demoMode) {
+      await enableDemoMode();
+    }
+    navigate(path);
   };
 
   return (
@@ -318,15 +325,15 @@ export default function TutorialView() {
               </div>
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: 'white', margin: 0 }}>
-                  {demoMode ? 'Demo Mode Enabled' : 'Enable Demo Mode'}
+                  {demoMode ? 'Demo Mode Active' : 'Enable Demo Mode'}
                 </h3>
                 <p style={{ fontSize: 13, color: 'rgba(203, 213, 225, 0.7)', margin: '4px 0 0 0' }}>
-                  {demoMode ? '10,000 test tokens available' : 'Test safely with virtual tokens'}
+                  {demoMode ? 'Explore all features safely' : 'Test features with virtual tokens'}
                 </p>
               </div>
             </div>
 
-            {demoMode && (
+            {demoMode ? (
               <div style={{
                 padding: 16,
                 background: 'rgba(34, 197, 94, 0.1)',
@@ -334,18 +341,41 @@ export default function TutorialView() {
                 marginBottom: 16,
                 border: '1px solid rgba(34, 197, 94, 0.3)'
               }}>
-                <div style={{ fontSize: 13, color: 'rgb(34, 197, 94)', fontWeight: 600, marginBottom: 8 }}>
-                  You can safely:
+                <div style={{ fontSize: 13, color: 'rgb(34, 197, 94)', fontWeight: 600, marginBottom: 12 }}>
+                  ✓ Demo Mode Enabled - You can now:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[
+                    'Click any feature below to explore',
+                    'Test with 10,000 virtual tokens',
+                    'All data is simulated - completely safe'
+                  ].map((text, i) => (
+                    <div key={i} style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.8)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Check size={14} style={{ color: 'rgb(34, 197, 94)' }} />
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{
+                padding: 16,
+                background: 'rgba(34, 211, 238, 0.1)',
+                borderRadius: 8,
+                marginBottom: 16,
+                border: '1px solid rgba(34, 211, 238, 0.3)'
+              }}>
+                <div style={{ fontSize: 13, color: 'rgb(34, 211, 238)', fontWeight: 600, marginBottom: 8 }}>
+                  Enable Demo Mode to:
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {[
-                    'Deposit test tokens into DeFi pools',
-                    'Purchase virtual US Treasury bonds',
-                    'View AI risk assessments'
+                    'Explore all system features',
+                    'Test without real transactions',
+                    'Experience the full workflow'
                   ].map((text, i) => (
-                    <div key={i} style={{ fontSize: 13, color: 'rgba(203, 213, 225, 0.8)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Check size={14} style={{ color: 'rgb(34, 197, 94)' }} />
-                      <span>{text}</span>
+                    <div key={i} style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.8)' }}>
+                      • {text}
                     </div>
                   ))}
                 </div>
@@ -358,26 +388,33 @@ export default function TutorialView() {
               fullWidth
               icon={demoMode ? null : Zap}
             >
-              {demoMode ? 'Exit Demo Mode' : 'Enable Now'}
+              {demoMode ? 'Exit Demo Mode' : 'Enable Demo Mode'}
             </TechButton>
           </TechCard>
 
           {/* Quick Start Guide */}
           <TechCard>
-            <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: '0 0 20px 0' }}>
-              Quick Start
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: '0 0 12px 0' }}>
+              Explore Features
             </h3>
+            <p style={{ fontSize: 13, color: 'rgba(203, 213, 225, 0.7)', margin: '0 0 20px 0' }}>
+              {demoMode
+                ? 'Demo mode is active. Click any feature to explore:'
+                : 'Click to enable demo mode and explore:'}
+            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { icon: TrendingUp, title: 'Yield Vault', desc: 'Auto-optimize DeFi returns', path: '/vault', color: 'rgb(34, 211, 238)' },
-                { icon: Gem, title: 'Treasury Bonds', desc: 'Stable RWA investments', path: '/treasury', color: 'rgb(59, 130, 246)' },
-                { icon: Shield, title: 'AI Risk Control', desc: 'View risk assessment reports', path: '/dashboard', color: 'rgb(34, 197, 94)' }
+                { icon: TrendingUp, title: 'DeFi Yield Vault', desc: 'Auto-optimize across 6+ protocols', path: '/vault', color: 'rgb(34, 211, 238)' },
+                { icon: Gem, title: 'Treasury Bonds', desc: 'Tokenized US Treasuries on Base', path: '/treasury', color: 'rgb(16, 185, 129)' },
+                { icon: Shield, title: 'Portfolio Dashboard', desc: 'Track positions & risk metrics', path: '/dashboard', color: 'rgb(59, 130, 246)' },
+                { icon: Brain, title: 'AI Risk Demo', desc: 'Interactive liquidation alerts', path: '/demo/liquidation-alert', color: 'rgb(168, 85, 247)', badge: 'SPECIAL' }
               ].map((item, i) => {
                 const Icon = item.icon;
+                const isAIDemo = item.path === '/demo/liquidation-alert';
                 return (
                   <button
                     key={i}
-                    onClick={() => navigate(item.path)}
+                    onClick={() => isAIDemo ? navigate(item.path) : handleNavigateWithDemo(item.path)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -417,17 +454,48 @@ export default function TutorialView() {
                       <Icon size={20} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: 2 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 8 }}>
                         {item.title}
+                        {item.badge && (
+                          <span style={{
+                            fontSize: 10,
+                            padding: '2px 6px',
+                            background: 'linear-gradient(135deg, rgb(168, 85, 247) 0%, rgb(124, 58, 237) 100%)',
+                            borderRadius: 4,
+                            fontWeight: 700,
+                            letterSpacing: 0.5
+                          }}>
+                            {item.badge}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.6)' }}>
                         {item.desc}
                       </div>
                     </div>
+                    <ArrowRight size={16} style={{ color: 'rgba(203, 213, 225, 0.4)', flexShrink: 0 }} />
                   </button>
                 );
               })}
             </div>
+
+            {!demoMode && (
+              <div style={{
+                marginTop: 16,
+                padding: 12,
+                background: 'rgba(245, 158, 11, 0.1)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                borderRadius: 8,
+                fontSize: 12,
+                color: 'rgba(245, 158, 11, 0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}>
+                <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+                <span>Clicking features will auto-enable demo mode</span>
+              </div>
+            )}
           </TechCard>
         </div>
       </div>
