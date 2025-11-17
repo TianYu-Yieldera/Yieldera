@@ -44,32 +44,28 @@ const LiquidationAlert = ({
   const getColorScheme = (level) => {
     const schemes = {
       healthy: {
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        text: 'text-green-800',
-        icon: 'text-green-600',
-        badge: 'bg-green-100 text-green-800'
+        primary: 'rgb(34, 197, 94)',
+        bg: 'rgba(34, 197, 94, 0.1)',
+        border: 'rgba(34, 197, 94, 0.3)',
+        text: 'rgb(34, 197, 94)'
       },
       warning: {
-        bg: 'bg-yellow-50',
-        border: 'border-yellow-200',
-        text: 'text-yellow-800',
-        icon: 'text-yellow-600',
-        badge: 'bg-yellow-100 text-yellow-800'
+        primary: 'rgb(245, 158, 11)',
+        bg: 'rgba(245, 158, 11, 0.1)',
+        border: 'rgba(245, 158, 11, 0.3)',
+        text: 'rgb(245, 158, 11)'
       },
       danger: {
-        bg: 'bg-orange-50',
-        border: 'border-orange-200',
-        text: 'text-orange-800',
-        icon: 'text-orange-600',
-        badge: 'bg-orange-100 text-orange-800'
+        primary: 'rgb(249, 115, 22)',
+        bg: 'rgba(249, 115, 22, 0.1)',
+        border: 'rgba(249, 115, 22, 0.3)',
+        text: 'rgb(249, 115, 22)'
       },
       critical: {
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        text: 'text-red-800',
-        icon: 'text-red-600',
-        badge: 'bg-red-100 text-red-800'
+        primary: 'rgb(239, 68, 68)',
+        bg: 'rgba(239, 68, 68, 0.1)',
+        border: 'rgba(239, 68, 68, 0.3)',
+        text: 'rgb(239, 68, 68)'
       }
     };
     return schemes[level] || schemes.healthy;
@@ -202,33 +198,58 @@ const LiquidationAlert = ({
   };
 
   return (
-    <div className={`rounded-lg border-2 ${colors.border} ${colors.bg} p-4 mb-4`}>
+    <div style={{
+      background: `linear-gradient(135deg, ${colors.bg} 0%, rgba(15, 23, 42, 0.5) 100%)`,
+      border: `2px solid ${colors.border}`,
+      borderRadius: 16,
+      padding: 24,
+      marginBottom: 16
+    }}>
       {/* Header Section */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center space-x-3">
-          <div className={`${colors.icon}`}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: 12,
+            background: colors.bg,
+            border: `2px solid ${colors.border}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: colors.primary
+          }}>
             {alertLevel === 'critical' ? (
-              <AlertTriangle className="h-6 w-6 animate-pulse" />
+              <AlertTriangle size={24} style={{ animation: 'pulse 2s ease-in-out infinite' }} />
             ) : alertLevel === 'healthy' ? (
-              <Shield className="h-6 w-6" />
+              <Shield size={24} />
             ) : (
-              <TrendingDown className="h-6 w-6" />
+              <TrendingDown size={24} />
             )}
           </div>
 
           <div>
-            <div className="flex items-center space-x-2">
-              <h3 className={`font-bold text-lg ${colors.text}`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: 'white', margin: 0 }}>
                 {position.protocol || 'Position'} - {position.collateralAsset || 'ETH'}
               </h3>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${colors.badge}`}>
+              <span style={{
+                fontSize: 11,
+                padding: '4px 10px',
+                background: colors.bg,
+                border: `1px solid ${colors.border}`,
+                borderRadius: 6,
+                fontWeight: 700,
+                color: colors.primary,
+                letterSpacing: 0.5
+              }}>
                 {alertLevel.toUpperCase()}
               </span>
             </div>
-            <p className={`text-sm ${colors.text} opacity-75`}>
+            <p style={{ fontSize: 14, color: 'rgba(203, 213, 225, 0.8)', margin: 0 }}>
               Chain: {position.chain || 'Arbitrum'}
               {lastUpdate && (
-                <span className="ml-2">
+                <span style={{ marginLeft: 12 }}>
                   • Updated {Math.round((Date.now() - lastUpdate) / 1000)}s ago
                 </span>
               )}
@@ -240,48 +261,89 @@ const LiquidationAlert = ({
         {alertLevel !== 'healthy' && (
           <button
             onClick={handleAddCollateral}
-            className="flex items-center space-x-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 20px',
+              background: 'rgb(59, 130, 246)',
+              border: 'none',
+              borderRadius: 8,
+              color: 'white',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgb(37, 99, 235)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgb(59, 130, 246)'}
           >
-            <Plus className="h-4 w-4" />
-            <span>Add Collateral</span>
+            <Plus size={16} />
+            Add Collateral
           </button>
         )}
       </div>
 
       {/* Main Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 20 }}>
         {/* Health Factor */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <div className="text-xs text-gray-600 mb-1">Health Factor</div>
-          <div className={`text-2xl font-bold ${colors.text}`}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+          borderRadius: 12,
+          padding: 20,
+          border: '1px solid rgba(34, 211, 238, 0.2)'
+        }}>
+          <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', marginBottom: 8, fontWeight: 500 }}>
+            Health Factor
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: colors.primary }}>
             {riskMetrics.healthFactor.toFixed(2)}
           </div>
         </div>
 
         {/* Distance to Liquidation */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <div className="text-xs text-gray-600 mb-1">To Liquidation</div>
-          <div className={`text-2xl font-bold ${colors.text}`}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+          borderRadius: 12,
+          padding: 20,
+          border: '1px solid rgba(34, 211, 238, 0.2)'
+        }}>
+          <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', marginBottom: 8, fontWeight: 500 }}>
+            Distance to Liquidation
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: colors.primary }}>
             {riskMetrics.distanceToLiquidation.toFixed(1)}%
           </div>
         </div>
 
         {/* Liquidation Probability */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <div className="text-xs text-gray-600 mb-1">Liq. Probability (24h)</div>
-          <div className={`text-2xl font-bold ${colors.text}`}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+          borderRadius: 12,
+          padding: 20,
+          border: '1px solid rgba(34, 211, 238, 0.2)'
+        }}>
+          <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', marginBottom: 8, fontWeight: 500 }}>
+            Liquidation Probability (24h)
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: colors.primary }}>
             {(riskMetrics.liquidationProb * 100).toFixed(1)}%
           </div>
         </div>
 
-        {/* Risk Score */}
+        {/* Risk Score (FastAPI only) */}
         {riskMetrics.source === 'fastapi' && (
-          <div className="bg-white rounded-lg p-3 border border-gray-200">
-            <div className="text-xs text-gray-600 mb-1 flex items-center">
+          <div style={{
+            background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+            borderRadius: 12,
+            padding: 20,
+            border: '1px solid rgba(34, 211, 238, 0.2)'
+          }}>
+            <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', marginBottom: 8, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
               Risk Score
-              <Zap className="h-3 w-3 ml-1 text-yellow-500" title="FastAPI Powered" />
+              <Zap size={14} style={{ color: 'rgb(245, 158, 11)' }} title="FastAPI Powered" />
             </div>
-            <div className={`text-2xl font-bold ${colors.text}`}>
+            <div style={{ fontSize: 32, fontWeight: 800, color: colors.primary }}>
               {riskMetrics.overallRiskScore.toFixed(1)}
             </div>
           </div>
@@ -292,26 +354,53 @@ const LiquidationAlert = ({
       <div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className={`flex items-center justify-between w-full text-sm font-medium ${colors.text} hover:opacity-75 transition-opacity`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            padding: '12px 16px',
+            background: 'rgba(15, 23, 42, 0.5)',
+            border: '1px solid rgba(34, 211, 238, 0.2)',
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: 600,
+            color: 'white',
+            cursor: 'pointer',
+            transition: 'all 0.3s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)';
+            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.5)';
+            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+          }}
         >
           <span>Advanced Metrics</span>
-          {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
 
         {expanded && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(34, 211, 238, 0.2)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
               {/* VaR (99%) */}
               {riskMetrics.source === 'fastapi' && riskMetrics.var99 > 0 && (
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">VaR (99%)</span>
-                    <Activity className="h-3 w-3 text-gray-400" />
+                <div style={{
+                  background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  border: '1px solid rgba(34, 211, 238, 0.2)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', fontWeight: 500 }}>VaR (99%)</span>
+                    <Activity size={14} style={{ color: 'rgba(203, 213, 225, 0.5)' }} />
                   </div>
-                  <div className="text-lg font-bold text-gray-800">
+                  <div style={{ fontSize: 20, fontWeight: 700, color: 'white', marginBottom: 6 }}>
                     ${riskMetrics.var99.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div style={{ fontSize: 11, color: 'rgba(203, 213, 225, 0.6)' }}>
                     Maximum expected loss (1% probability)
                   </div>
                 </div>
@@ -319,15 +408,20 @@ const LiquidationAlert = ({
 
               {/* CVaR / Expected Shortfall */}
               {riskMetrics.source === 'fastapi' && riskMetrics.cvar > 0 && (
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">CVaR / Expected Shortfall</span>
-                    <Activity className="h-3 w-3 text-gray-400" />
+                <div style={{
+                  background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  border: '1px solid rgba(34, 211, 238, 0.2)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', fontWeight: 500 }}>CVaR / Expected Shortfall</span>
+                    <Activity size={14} style={{ color: 'rgba(203, 213, 225, 0.5)' }} />
                   </div>
-                  <div className="text-lg font-bold text-gray-800">
+                  <div style={{ fontSize: 20, fontWeight: 700, color: 'white', marginBottom: 6 }}>
                     ${riskMetrics.cvar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div style={{ fontSize: 11, color: 'rgba(203, 213, 225, 0.6)' }}>
                     Average loss when VaR is exceeded
                   </div>
                 </div>
@@ -335,14 +429,19 @@ const LiquidationAlert = ({
 
               {/* Liquidation Price */}
               {riskMetrics.liquidationPrice > 0 && (
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">Liquidation Price</span>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  border: '1px solid rgba(34, 211, 238, 0.2)'
+                }}>
+                  <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', marginBottom: 8, fontWeight: 500 }}>
+                    Liquidation Price
                   </div>
-                  <div className="text-lg font-bold text-gray-800">
+                  <div style={{ fontSize: 20, fontWeight: 700, color: 'white', marginBottom: 6 }}>
                     ${riskMetrics.liquidationPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div style={{ fontSize: 11, color: 'rgba(203, 213, 225, 0.6)' }}>
                     Current: ${riskMetrics.currentPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
                 </div>
@@ -350,14 +449,19 @@ const LiquidationAlert = ({
 
               {/* Sharpe Ratio */}
               {riskMetrics.source === 'fastapi' && riskMetrics.sharpeRatio !== 0 && (
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">Sharpe Ratio</span>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  border: '1px solid rgba(34, 211, 238, 0.2)'
+                }}>
+                  <div style={{ fontSize: 12, color: 'rgba(203, 213, 225, 0.7)', marginBottom: 8, fontWeight: 500 }}>
+                    Sharpe Ratio
                   </div>
-                  <div className="text-lg font-bold text-gray-800">
+                  <div style={{ fontSize: 20, fontWeight: 700, color: 'white', marginBottom: 6 }}>
                     {riskMetrics.sharpeRatio.toFixed(2)}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div style={{ fontSize: 11, color: 'rgba(203, 213, 225, 0.6)' }}>
                     Risk-adjusted return metric
                   </div>
                 </div>
@@ -365,21 +469,21 @@ const LiquidationAlert = ({
             </div>
 
             {/* Data Source Badge */}
-            <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-2">
+            <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(203, 213, 225, 0.7)' }}>
                 <span>Data Source:</span>
                 {riskMetrics.source === 'fastapi' ? (
-                  <span className="flex items-center text-green-600 font-medium">
-                    <Zap className="h-3 w-3 mr-1" />
+                  <span style={{ display: 'flex', alignItems: 'center', color: 'rgb(34, 197, 94)', fontWeight: 600 }}>
+                    <Zap size={14} style={{ marginRight: 4 }} />
                     FastAPI (Advanced)
                   </span>
                 ) : (
-                  <span className="text-gray-600">Basic Calculations</span>
+                  <span style={{ color: 'rgba(203, 213, 225, 0.8)', fontWeight: 600 }}>Basic Calculations</span>
                 )}
               </div>
               {loading && (
-                <span className="flex items-center text-blue-600">
-                  <Activity className="h-3 w-3 mr-1 animate-pulse" />
+                <span style={{ display: 'flex', alignItems: 'center', color: 'rgb(59, 130, 246)' }}>
+                  <Activity size={14} style={{ marginRight: 4, animation: 'pulse 2s ease-in-out infinite' }} />
                   Calculating...
                 </span>
               )}
@@ -387,7 +491,15 @@ const LiquidationAlert = ({
 
             {/* Error Display */}
             {riskMetrics.error && (
-              <div className="mt-2 text-xs text-orange-600 bg-orange-50 rounded p-2">
+              <div style={{
+                marginTop: 12,
+                padding: 12,
+                background: 'rgba(249, 115, 22, 0.1)',
+                border: '1px solid rgba(249, 115, 22, 0.3)',
+                borderRadius: 8,
+                fontSize: 12,
+                color: 'rgb(249, 115, 22)'
+              }}>
                 Warning: {riskMetrics.error}
               </div>
             )}
@@ -397,10 +509,16 @@ const LiquidationAlert = ({
 
       {/* Warning Messages */}
       {alertLevel === 'critical' && (
-        <div className="mt-3 bg-red-100 border border-red-300 rounded-lg p-3">
-          <div className="flex items-start space-x-2">
-            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-red-800">
+        <div style={{
+          marginTop: 20,
+          padding: 16,
+          background: 'rgba(239, 68, 68, 0.15)',
+          border: '1px solid rgba(239, 68, 68, 0.4)',
+          borderRadius: 12
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <AlertTriangle size={20} style={{ color: 'rgb(239, 68, 68)', flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.95)' }}>
               <strong>Critical Risk!</strong> Your position is at high risk of liquidation.
               Add collateral immediately to improve your health factor.
             </div>
@@ -409,10 +527,16 @@ const LiquidationAlert = ({
       )}
 
       {alertLevel === 'danger' && (
-        <div className="mt-3 bg-orange-100 border border-orange-300 rounded-lg p-3">
-          <div className="flex items-start space-x-2">
-            <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-orange-800">
+        <div style={{
+          marginTop: 20,
+          padding: 16,
+          background: 'rgba(249, 115, 22, 0.15)',
+          border: '1px solid rgba(249, 115, 22, 0.4)',
+          borderRadius: 12
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <AlertTriangle size={20} style={{ color: 'rgb(249, 115, 22)', flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.95)' }}>
               <strong>High Risk:</strong> Your health factor is below the recommended threshold.
               Consider adding more collateral to reduce liquidation risk.
             </div>
@@ -421,8 +545,14 @@ const LiquidationAlert = ({
       )}
 
       {alertLevel === 'warning' && (
-        <div className="mt-3 bg-yellow-100 border border-yellow-300 rounded-lg p-3">
-          <div className="text-sm text-yellow-800">
+        <div style={{
+          marginTop: 20,
+          padding: 16,
+          background: 'rgba(245, 158, 11, 0.15)',
+          border: '1px solid rgba(245, 158, 11, 0.4)',
+          borderRadius: 12
+        }}>
+          <div style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.95)' }}>
             <strong>Moderate Risk:</strong> Monitor your position closely.
             Market volatility could impact your health factor.
           </div>
