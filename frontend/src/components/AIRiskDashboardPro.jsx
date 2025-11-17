@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   Shield,
@@ -14,22 +15,33 @@ import {
   Zap,
   RefreshCw,
   Eye,
-  ChevronRight
+  ChevronRight,
+  Users,
+  TrendingDown
 } from 'lucide-react';
 import { useWallet } from '../web3/WalletContext';
 import { useDemoMode } from '../web3/DemoModeContext';
 import LiquidationAlert from './LiquidationAlert';
+import AgentSimulationPanel from './AgentSimulationPanel';
+import StressTestPanel from './StressTestPanel';
+import MLPredictionPanel from './MLPredictionPanel';
+import RealtimeMonitorPanel from './RealtimeMonitorPanel';
 import fastAPIRiskService from '../services/fastAPIRiskService';
 import aiRiskService from '../services/aiRiskService';
 
 const AIRiskDashboardPro = () => {
+  const [searchParams] = useSearchParams();
   const { address } = useWallet();
   const { demoMode, demoData } = useDemoMode();
   const [positions, setPositions] = useState([]);
   const [riskSummary, setRiskSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fastAPIAvailable, setFastAPIAvailable] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('positions'); // 'positions' | 'analytics'
+  const [selectedTab, setSelectedTab] = useState(() => {
+    // Check URL params for initial tab
+    return searchParams.get('tab') === 'analytics' ? 'analytics' : 'positions';
+  }); // 'positions' | 'analytics'
+  const [analyticsSubTab, setAnalyticsSubTab] = useState('simulation'); // 'simulation' | 'stress' | 'prediction' | 'realtime'
 
   useEffect(() => {
     loadDashboardData();
@@ -86,6 +98,54 @@ const AIRiskDashboardPro = () => {
 
   const generateDemoPositions = (demoData) => {
     const defiDeposits = demoData?.defiDeposits || [];
+
+    // If no deposits exist, generate default demo positions
+    if (defiDeposits.length === 0) {
+      return [
+        {
+          id: 'demo-default-1',
+          protocol: 'Aave V3',
+          chain: 'Arbitrum',
+          collateralAsset: 'ETH',
+          collateralValueUSD: 50000,
+          borrowValueUSD: 20000,
+          healthFactor: 2.5,
+          leverage: 1.4,
+          ltv: 0.4,
+          currentPrice: 2500,
+          liquidationPrice: 1950,
+          position_age_days: 45
+        },
+        {
+          id: 'demo-default-2',
+          protocol: 'Compound V3',
+          chain: 'Base',
+          collateralAsset: 'WBTC',
+          collateralValueUSD: 75000,
+          borrowValueUSD: 45000,
+          healthFactor: 1.67,
+          leverage: 1.6,
+          ltv: 0.6,
+          currentPrice: 45000,
+          liquidationPrice: 40500,
+          position_age_days: 30
+        },
+        {
+          id: 'demo-default-3',
+          protocol: 'GMX V2',
+          chain: 'Arbitrum',
+          collateralAsset: 'ETH',
+          collateralValueUSD: 40000,
+          borrowValueUSD: 28000,
+          healthFactor: 1.43,
+          leverage: 1.7,
+          ltv: 0.7,
+          currentPrice: 2500,
+          liquidationPrice: 2200,
+          position_age_days: 60
+        }
+      ];
+    }
 
     return defiDeposits.map((deposit, index) => ({
       id: `demo-${index}`,
@@ -439,20 +499,97 @@ const AIRiskDashboardPro = () => {
             )}
           </div>
         ) : (
-          <div style={{
-            padding: 40,
-            textAlign: 'center',
-            background: 'rgba(255, 255, 255, 0.03)',
-            borderRadius: 12,
-            border: '1px solid rgba(255, 255, 255, 0.08)'
-          }}>
-            <Activity size={48} style={{ color: 'rgba(203, 213, 225, 0.5)', marginBottom: 16 }} />
-            <p style={{ fontSize: 16, color: 'rgba(203, 213, 225, 0.8)', margin: '0 0 8px 0', fontWeight: 600 }}>
-              Advanced Analytics Coming Soon
-            </p>
-            <p style={{ fontSize: 14, color: 'rgba(203, 213, 225, 0.6)', margin: 0 }}>
-              Portfolio correlation analysis, VaR trends, and stress test scenarios
-            </p>
+          <div>
+            {/* Analytics Sub-tabs */}
+            <div style={{ display: 'flex', gap: 12, marginBottom: 24, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <button
+                onClick={() => setAnalyticsSubTab('simulation')}
+                style={{
+                  padding: '12px 20px',
+                  background: analyticsSubTab === 'simulation' ? 'rgba(34, 211, 238, 0.15)' : 'transparent',
+                  border: 'none',
+                  borderBottom: analyticsSubTab === 'simulation' ? '2px solid rgb(34, 211, 238)' : '2px solid transparent',
+                  color: analyticsSubTab === 'simulation' ? 'rgb(34, 211, 238)' : 'rgba(203, 213, 225, 0.7)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Users size={16} />
+                  Agent Simulation
+                </div>
+              </button>
+              <button
+                onClick={() => setAnalyticsSubTab('stress')}
+                style={{
+                  padding: '12px 20px',
+                  background: analyticsSubTab === 'stress' ? 'rgba(34, 211, 238, 0.15)' : 'transparent',
+                  border: 'none',
+                  borderBottom: analyticsSubTab === 'stress' ? '2px solid rgb(34, 211, 238)' : '2px solid transparent',
+                  color: analyticsSubTab === 'stress' ? 'rgb(34, 211, 238)' : 'rgba(203, 213, 225, 0.7)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <TrendingDown size={16} />
+                  Stress Testing
+                </div>
+              </button>
+              <button
+                onClick={() => setAnalyticsSubTab('prediction')}
+                style={{
+                  padding: '12px 20px',
+                  background: analyticsSubTab === 'prediction' ? 'rgba(34, 211, 238, 0.15)' : 'transparent',
+                  border: 'none',
+                  borderBottom: analyticsSubTab === 'prediction' ? '2px solid rgb(34, 211, 238)' : '2px solid transparent',
+                  color: analyticsSubTab === 'prediction' ? 'rgb(34, 211, 238)' : 'rgba(203, 213, 225, 0.7)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Brain size={16} />
+                  ML Prediction
+                </div>
+              </button>
+              <button
+                onClick={() => setAnalyticsSubTab('realtime')}
+                style={{
+                  padding: '12px 20px',
+                  background: analyticsSubTab === 'realtime' ? 'rgba(34, 211, 238, 0.15)' : 'transparent',
+                  border: 'none',
+                  borderBottom: analyticsSubTab === 'realtime' ? '2px solid rgb(34, 211, 238)' : '2px solid transparent',
+                  color: analyticsSubTab === 'realtime' ? 'rgb(34, 211, 238)' : 'rgba(203, 213, 225, 0.7)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Activity size={16} />
+                  Live Monitor
+                </div>
+              </button>
+            </div>
+
+            {/* Sub-tab Content */}
+            {analyticsSubTab === 'simulation' ? (
+              <AgentSimulationPanel positions={positions} />
+            ) : analyticsSubTab === 'stress' ? (
+              <StressTestPanel positions={positions} />
+            ) : analyticsSubTab === 'prediction' ? (
+              <MLPredictionPanel positions={positions} />
+            ) : (
+              <RealtimeMonitorPanel />
+            )}
           </div>
         )}
       </div>
